@@ -22,13 +22,26 @@ public class ViewLogin extends JPanel {
  
         JTextField textField = new JTextField();
         textField.setFont(new Font("Arial", Font.PLAIN, 18));
-        textField.setBounds(10, 80, 250, 40); 
+        textField.setBounds(10, 80, 250, 40);
         add(textField);
+        JLabel invalido = new JLabel("algun datos es erroneo");
+        invalido.setFont(new Font("Arial", Font.BOLD, 12));
+        invalido.setBounds(10, 110, 255, 40); 
+        invalido.setForeground(Color.RED);
+        add(invalido);
+        
 
         JPasswordField password = new JPasswordField();
         password.setFont(new Font("Arial", Font.PLAIN, 18));
         password.setBounds(10, 140, 250, 40); 
         add(password);
+        JLabel labelpas = new JLabel("algun datos es erroneo");
+        labelpas.setFont(new Font("Arial", Font.BOLD, 12));
+        labelpas.setBounds(10, 170, 255, 40); 
+        labelpas.setForeground(Color.RED);
+        add(labelpas);
+        
+
 
         JButton boton = new JButton("Ingresar");
         boton.setBounds(10, 200, 120, 40); 
