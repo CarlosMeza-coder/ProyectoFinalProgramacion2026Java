@@ -3,7 +3,7 @@ package main;
 import javax.swing.JFrame;
 import views.ViewLogin;
 
-// sebas GAY
+
 public class Main {
     public static void main(String[] args) {
     	
