@@ -20,5 +20,7 @@ public class FlowPanel extends JPanel {
 
     public void addItem(Component item) {
         add(item);
+        //Aqui se agrega checkbutton constructor string, booleanose agrega con add
+        // Todo sobre los botones 
     }
 }
