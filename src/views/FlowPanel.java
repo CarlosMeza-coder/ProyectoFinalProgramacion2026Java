@@ -24,15 +24,7 @@ public class FlowPanel extends JPanel {
 
     public void addItem(Component item) {
         add(item);
-        //Aqui se agrega checkbutton constructor string, booleanose agrega con add
-        // Todo sobre los botones 
-        JCheckBox chkAceptoCondiciones = new JCheckBox("Acepto condiciones", true);
-		add(chkAceptoCondiciones);
-		
-        JRadioButton rbMujer = new JRadioButton("Mujer");
-		add(rbMujer);
-		JRadioButton rbHombre = new JRadioButton("Hombre");
-		add(rbHombre);
+      
         
         
         

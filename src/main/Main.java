@@ -1,34 +1,32 @@
 package main;
 
+import java.awt.Image;
+import java.awt.Toolkit;
 import javax.swing.JFrame;
 import views.FormularioRegistro;
 import views.ViewLogin;
-
+import views.OpcionesAlumnos;
 
 public class Main {
     public static void main(String[] args) {
-    	
-        JFrame ventana = new JFrame("Sistema de calificaciones");
-                        
+        
+        Toolkit herramientasGraficas = Toolkit.getDefaultToolkit();
+        Image iconoDelSistema = herramientasGraficas.getImage("src/img/OIP.jpg");
+
+        JFrame ventanaLogin = new JFrame("Sistema de calificaciones");
+        ventanaLogin.setIconImage(iconoDelSistema);
+        
         ViewLogin login = new ViewLogin();
-        ventana.add(login);      
-        ventana.setSize(500, 400);          
-        ventana.setVisible(true);
+        ventanaLogin.add(login);      
+        ventanaLogin.setSize(400, 450); 
+        ventanaLogin.setLocation(50, 100); 
+        ventanaLogin.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        ventanaLogin.setVisible(true);
         
         FormularioRegistro formulario = new FormularioRegistro();
-		showOnScreen(1, formulario);
-		
-		  //Grupos grupos = new Grupos();
-		//	showOnScreen(2, grupos);
-
+        formulario.setLocation(460, 100); 
+        
+        OpcionesAlumnos opciones = new OpcionesAlumnos();
+        opciones.setLocation(820, 100); 
     }
-
-	private static void showOnScreen(int i, FormularioRegistro formulario) {
-		// TODO Auto-generated method stub
-		
-	}
-	
-	//private static void showOnScreen(int i, Grupos grupos) {
-		// TODO Auto-generated method stub
-		
-	}
+}
