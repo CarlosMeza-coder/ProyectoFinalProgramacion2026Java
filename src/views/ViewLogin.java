@@ -2,11 +2,14 @@ package views;
 
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.Dimension;
 import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.JPasswordField;
@@ -60,13 +63,45 @@ public class ViewLogin extends JPanel {
         buttonContainer.setBackground(Color.WHITE);
 
         JButton boton = new JButton("Ingresar");
-        boton.setBackground(Color.MAGENTA);
+        boton.setBackground(Color.CYAN);
         boton.setForeground(Color.BLACK);
         boton.setFont(new Font("Arial", Font.BOLD, 16));
         boton.setPreferredSize(new Dimension(120, 40));
         boton.setToolTipText("Clic para entrar");
         buttonContainer.addItem(boton);
-
+        
+        /*boton.addActionListener(new ActionListener() {
+        	@Override 
+        	public void actionPerformed(ActionEvent e) {
+        	System.out.println("se hizo clic en el boton");
+        	JOptionPane.showInternalMessageDialog(null,
+        			"se inicio la sesion",
+        			"sesion iniciada",
+        			JOptionPane.INFORMATION_MESSAGE);
+        		
+        	
+        	}
+        });*/
+        boton.addActionListener(e -> {
+        JOptionPane.showInternalMessageDialog(
+        		null, 
+        		"se inicio la sesion",
+    			"sesion iniciada",
+    			JOptionPane.INFORMATION_MESSAGE);
+        		login();
+        });
+        
+        
+        
+        
+        
+        boton.addActionListener(e -> login());
+        
         container.addItem(buttonContainer, BorderLayout.SOUTH);
     }
+
+	private Object login() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }
