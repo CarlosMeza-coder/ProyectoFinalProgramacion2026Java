@@ -1,10 +1,17 @@
 package views;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.FlowLayout;
 import java.awt.Image;
 import java.awt.Toolkit;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
@@ -48,6 +55,16 @@ public class FormularioRegistro extends JFrame {
         setTitle("Registro de Alumno");
         setLocationRelativeTo(null);
         
+        addWindowListener(new WindowAdapter() {
+            public void windowClosing(WindowEvent e) {
+                int option = JOptionPane.showConfirmDialog(FormularioRegistro.this, "¿Seguro que deseas regresar? Se perderán todos los datos", "Confirmar salida", JOptionPane.YES_NO_OPTION);
+                if (option == JOptionPane.YES_OPTION) {
+                    new LoginWindow();
+                    dispose();
+                }
+            }
+        });
+        
         inicializarComponentesDeRegistro();
         
         setVisible(true);
@@ -63,21 +80,34 @@ public class FormularioRegistro extends JFrame {
         panelFormularioRegistro.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
         campoTextoNombreAlumno = new JTextField(10);
+        aplicarFocus(campoTextoNombreAlumno);
         errorNombre = new ErrorLabel();
         
         campoTextoApellidoPaterno = new JTextField(10);
+        aplicarFocus(campoTextoApellidoPaterno);
         errorPaterno = new ErrorLabel();
         
         campoTextoApellidoMaterno = new JTextField(10);
+        aplicarFocus(campoTextoApellidoMaterno);
         errorMaterno = new ErrorLabel();
         
         campoTextoMatriculaAlumno = new JTextField(10);
+        aplicarFocus(campoTextoMatriculaAlumno);
         errorMatricula = new ErrorLabel();
         
         campoTextoCorreoAlumno = new JTextField(10);
+        aplicarFocus(campoTextoCorreoAlumno);
         errorCorreo = new ErrorLabel();
         
         campoTextoEdadAlumno = new JTextField(20);
+        aplicarFocus(campoTextoEdadAlumno);
+        campoTextoEdadAlumno.addKeyListener(new KeyAdapter() {
+            public void keyTyped(KeyEvent e) {
+                if (!Character.isDigit(e.getKeyChar())) {
+                    e.consume();
+                }
+            }
+        });
         errorEdad = new ErrorLabel();
 
         panelFormularioRegistro.add(createField("Nombre:", campoTextoNombreAlumno, errorNombre));
@@ -106,6 +136,17 @@ public class FormularioRegistro extends JFrame {
         add(createButtonPanel(), BorderLayout.SOUTH);
     }
 
+    private void aplicarFocus(JTextField campo) {
+        campo.addFocusListener(new FocusAdapter() {
+            public void focusGained(FocusEvent e) {
+                campo.setBackground(Color.LIGHT_GRAY);
+            }
+            public void focusLost(FocusEvent e) {
+                campo.setBackground(Color.WHITE);
+            }
+        });
+    }
+
     private JPanel createButtonPanel() {
         JPanel panel = new JPanel();
         
@@ -115,7 +156,7 @@ public class FormularioRegistro extends JFrame {
         
         JButton btnRegresar = new JButton("Regresar");
         btnRegresar.addActionListener(e -> {
-            int option = JOptionPane.showConfirmDialog(this, "¿Seguro que deseas regresar? Se perderán todos los datos");
+            int option = JOptionPane.showConfirmDialog(this, "¿Seguro que deseas regresar? Se perderán todos los datos", "Confirmar salida", JOptionPane.YES_NO_OPTION);
             if (option == JOptionPane.YES_OPTION) {
                 new LoginWindow();
                 dispose();
@@ -201,7 +242,7 @@ public class FormularioRegistro extends JFrame {
 
     private boolean validarMatricula() {
         if (campoTextoMatriculaAlumno.getText().trim().isEmpty()) {
-            errorMatricula.setText("La matricula es obligatoria");
+            errorMatricula.setText("La matrícula es obligatoria");
             return false;
         }
         return true;
@@ -213,7 +254,7 @@ public class FormularioRegistro extends JFrame {
             return false;
         }
         if (!campoTextoCorreoAlumno.getText().contains("@")) {
-            errorCorreo.setText("Email invalido");
+            errorCorreo.setText("Email inválido");
             return false;
         }
         return true;
