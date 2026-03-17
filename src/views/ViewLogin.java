@@ -1,19 +1,20 @@
 package views;
 
 import java.awt.Color;
+import java.awt.Cursor;
 import java.awt.Font;
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.Dimension;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.JPasswordField;
 import javax.swing.border.EmptyBorder;
-import java.awt.Cursor;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 
 public class ViewLogin extends JPanel {
     
@@ -22,6 +23,7 @@ public class ViewLogin extends JPanel {
     JPasswordField contrasena;
     JLabel lblEmailRequerido;
     JLabel lblContrasenaRequerida;
+    Color defaultButtonColor;
 
     public ViewLogin(LoginWindow window) {
         this.window = window;
@@ -76,10 +78,52 @@ public class ViewLogin extends JPanel {
         boton.setFont(new Font("Arial", Font.BOLD, 16));
         boton.setPreferredSize(new Dimension(120, 40));
         boton.setToolTipText("Clic para entrar");
+        
+        defaultButtonColor = boton.getBackground();
+        
         boton.addActionListener(e -> login());
+        
+        boton.addMouseListener(new MouseAdapter() {
+            public void mouseEntered(MouseEvent e) {
+                changeBackground(boton);
+            }
+            public void mouseExited(MouseEvent e) {
+                resetBackground(boton);
+            }
+        });
+        
         buttonContainer.addItem(boton);
+        
+        JLabel lblRegister = new JLabel("¿No tienes cuenta? Regístrate aquí");
+        lblRegister.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        lblRegister.setFont(new Font("Arial", Font.BOLD, 14));
+        
+        lblRegister.addMouseListener(new MouseAdapter() {
+            public void mouseClicked(MouseEvent e) {
+                new FormularioRegistro();
+                window.dispose();
+            }
+            public void mouseEntered(MouseEvent e) {
+                lblRegister.setForeground(Color.GREEN);
+            }
+            public void mouseExited(MouseEvent e) {
+                lblRegister.setForeground(Color.BLACK);
+            }
+        });
+        
+        buttonContainer.addItem(lblRegister);
 
         container.addItem(buttonContainer, BorderLayout.SOUTH);
+    }
+    
+    private void changeBackground(JComponent c) {
+        c.setBackground(Color.BLACK);
+        c.setForeground(Color.WHITE);
+    }
+
+    private void resetBackground(JComponent c) {
+        c.setBackground(defaultButtonColor);
+        c.setForeground(Color.BLACK);
     }
     
     private void login() {

@@ -201,7 +201,7 @@ public class FormularioRegistro extends JFrame {
 
     private boolean validarMatricula() {
         if (campoTextoMatriculaAlumno.getText().trim().isEmpty()) {
-            errorMatricula.setText("La matrícula es obligatoria");
+            errorMatricula.setText("La matricula es obligatoria");
             return false;
         }
         return true;
@@ -213,7 +213,7 @@ public class FormularioRegistro extends JFrame {
             return false;
         }
         if (!campoTextoCorreoAlumno.getText().contains("@")) {
-            errorCorreo.setText("Email inválido");
+            errorCorreo.setText("Email invalido");
             return false;
         }
         return true;
