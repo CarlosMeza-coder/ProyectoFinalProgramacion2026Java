@@ -15,6 +15,8 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.JPasswordField;
 import javax.swing.border.EmptyBorder;
+import excepciones.InvalidUser;
+import excepciones.InvalidPassword;
 
 public class ViewLogin extends JPanel {
     
@@ -129,21 +131,36 @@ public class ViewLogin extends JPanel {
     private void login() {
         lblEmailRequerido.setText("");
         lblContrasenaRequerida.setText("");
-        boolean valid = true;
 
-        if (txtEmail.getText().trim().isEmpty()) {
-            lblEmailRequerido.setText("El correo es obligatorio");
-            valid = false;
-        }
-
-        if (new String(contrasena.getPassword()).trim().isEmpty()) {
-            lblContrasenaRequerida.setText("La contraseña es obligatoria");
-            valid = false;
-        }
-
-        if (valid) {
+        try {
+            validarCredenciales();
             new FormularioRegistro();
             this.window.dispose();
+        } catch (InvalidUser e) {
+            lblEmailRequerido.setText(e.getMessage());
+        } catch (InvalidPassword e) {
+            lblContrasenaRequerida.setText(e.getMessage());
+        }
+    }
+
+    private void validarCredenciales() throws InvalidUser, InvalidPassword {
+        String email = txtEmail.getText();
+        String password = new String(contrasena.getPassword());
+
+        if (email.trim().isEmpty()) {
+            throw new InvalidUser("El correo es obligatorio");
+        }
+        
+        if (!email.trim().isEmpty() && !email.equals("madero@uabcs.com")) {
+            throw new InvalidUser();
+        }
+
+        if (password.trim().isEmpty()) {
+            throw new InvalidPassword("La contraseña es obligatoria");
+        }
+
+        if (!password.trim().isEmpty() && !password.equals("1234")) {
+            throw new InvalidPassword();
         }
     }
 }
