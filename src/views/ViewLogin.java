@@ -15,16 +15,17 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.JPasswordField;
 import javax.swing.border.EmptyBorder;
-import excepciones.InvalidUser;
-import excepciones.InvalidPassword;
 
 public class ViewLogin extends JPanel {
     
     private LoginWindow window;
-    JTextField txtEmail;
-    JPasswordField contrasena;
-    JLabel lblEmailRequerido;
-    JLabel lblContrasenaRequerida;
+    private JTextField txtEmail;
+    private JPasswordField contrasena;
+    private JLabel lblEmailRequerido;
+    private JLabel lblContrasenaRequerida;
+    private JButton botonIngresar;
+    private JLabel lblRegister;
+    
     Color defaultButtonColor;
 
     public ViewLogin(LoginWindow window) {
@@ -74,37 +75,31 @@ public class ViewLogin extends JPanel {
         FlowPanel buttonContainer = new FlowPanel(FlowLayout.LEFT);
         buttonContainer.setBackground(Color.WHITE);
 
-        JButton boton = new JButton("Ingresar");
-        boton.setBackground(Color.CYAN);
-        boton.setForeground(Color.BLACK);
-        boton.setFont(new Font("Arial", Font.BOLD, 16));
-        boton.setPreferredSize(new Dimension(120, 40));
-        boton.setToolTipText("Clic para entrar");
+        botonIngresar = new JButton("Ingresar");
+        botonIngresar.setBackground(Color.CYAN);
+        botonIngresar.setForeground(Color.BLACK);
+        botonIngresar.setFont(new Font("Arial", Font.BOLD, 16));
+        botonIngresar.setPreferredSize(new Dimension(120, 40));
+        botonIngresar.setToolTipText("Clic para entrar");
         
-        defaultButtonColor = boton.getBackground();
+        defaultButtonColor = botonIngresar.getBackground();
         
-        boton.addActionListener(e -> login());
-        
-        boton.addMouseListener(new MouseAdapter() {
+        botonIngresar.addMouseListener(new MouseAdapter() {
             public void mouseEntered(MouseEvent e) {
-                changeBackground(boton);
+                changeBackground(botonIngresar);
             }
             public void mouseExited(MouseEvent e) {
-                resetBackground(boton);
+                resetBackground(botonIngresar);
             }
         });
         
-        buttonContainer.addItem(boton);
+        buttonContainer.addItem(botonIngresar);
         
-        JLabel lblRegister = new JLabel("¿No tienes cuenta? Regístrate aquí");
+        lblRegister = new JLabel("¿No tienes cuenta? Regístrate aquí");
         lblRegister.setCursor(new Cursor(Cursor.HAND_CURSOR));
         lblRegister.setFont(new Font("Arial", Font.BOLD, 14));
         
         lblRegister.addMouseListener(new MouseAdapter() {
-            public void mouseClicked(MouseEvent e) {
-                new FormularioRegistro();
-                window.dispose();
-            }
             public void mouseEntered(MouseEvent e) {
                 lblRegister.setForeground(Color.GREEN);
             }
@@ -127,40 +122,39 @@ public class ViewLogin extends JPanel {
         c.setBackground(defaultButtonColor);
         c.setForeground(Color.BLACK);
     }
-    
-    private void login() {
-        lblEmailRequerido.setText("");
-        lblContrasenaRequerida.setText("");
 
-        try {
-            validarCredenciales();
-            new FormularioRegistro();
-            this.window.dispose();
-        } catch (InvalidUser e) {
-            lblEmailRequerido.setText(e.getMessage());
-        } catch (InvalidPassword e) {
-            lblContrasenaRequerida.setText(e.getMessage());
-        }
+  
+    public String getEmail() {
+        return txtEmail.getText();
     }
 
-    private void validarCredenciales() throws InvalidUser, InvalidPassword {
-        String email = txtEmail.getText();
-        String password = new String(contrasena.getPassword());
+    public String getPassword() {
+        return new String(contrasena.getPassword());
+    }
 
-        if (email.trim().isEmpty()) {
-            throw new InvalidUser("El correo es obligatorio");
-        }
-        
-        if (!email.trim().isEmpty() && !email.equals("madero@uabcs.com")) {
-            throw new InvalidUser();
-        }
+    public JButton getBotonIngresar() {
+        return botonIngresar;
+    }
 
-        if (password.trim().isEmpty()) {
-            throw new InvalidPassword("La contraseña es obligatoria");
-        }
+    public JLabel getLblRegister() {
+        return lblRegister;
+    }
 
-        if (!password.trim().isEmpty() && !password.equals("1234")) {
-            throw new InvalidPassword();
-        }
+    public LoginWindow getWindow() {
+        return window;
+    }
+
+    
+    public void setEmailError(String error) {
+        lblEmailRequerido.setText(error);
+    }
+
+    public void setPasswordError(String error) {
+        lblContrasenaRequerida.setText(error);
+    }
+
+    public void clearErrors() {
+        lblEmailRequerido.setText("");
+        lblContrasenaRequerida.setText("");
     }
 }

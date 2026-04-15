@@ -4,14 +4,10 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.FlowLayout;
-import java.awt.Image;
-import java.awt.Toolkit;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
@@ -19,7 +15,6 @@ import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane; 
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
@@ -47,6 +42,9 @@ public class FormularioRegistro extends JFrame {
     private ErrorLabel errorCorreo;
     private ErrorLabel errorEdad;
     private ErrorLabel errorSexo;
+    
+    private JButton btnValidate;
+    private JButton btnRegresar;
 
     public FormularioRegistro() {
         setSize(350, 450);
@@ -54,16 +52,6 @@ public class FormularioRegistro extends JFrame {
         setResizable(true);
         setTitle("Registro de Alumno");
         setLocationRelativeTo(null);
-        
-        addWindowListener(new WindowAdapter() {
-            public void windowClosing(WindowEvent e) {
-                int option = JOptionPane.showConfirmDialog(FormularioRegistro.this, "¿Seguro que deseas regresar? Se perderán todos los datos", "Confirmar salida", JOptionPane.YES_NO_OPTION);
-                if (option == JOptionPane.YES_OPTION) {
-                    new LoginWindow();
-                    dispose();
-                }
-            }
-        });
         
         inicializarComponentesDeRegistro();
         
@@ -150,130 +138,13 @@ public class FormularioRegistro extends JFrame {
     private JPanel createButtonPanel() {
         JPanel panel = new JPanel();
         
-        JButton btnValidate = new JButton("Validar");
-        btnValidate.addActionListener(e -> validarFormulario());
+        btnValidate = new JButton("Validar");
         panel.add(btnValidate);
         
-        JButton btnRegresar = new JButton("Regresar");
-        btnRegresar.addActionListener(e -> {
-            int option = JOptionPane.showConfirmDialog(this, "¿Seguro que deseas regresar? Se perderán todos los datos", "Confirmar salida", JOptionPane.YES_NO_OPTION);
-            if (option == JOptionPane.YES_OPTION) {
-                new LoginWindow();
-                dispose();
-            }
-        });
+        btnRegresar = new JButton("Regresar");
         panel.add(btnRegresar);
         
         return panel;
-    }
-
-    private void validarFormulario() {
-        limpiarErrores();
-        
-        boolean valid = true;
-
-        if (!validarNombre()) {
-            valid = false;
-        }
-        
-        if (!validarPaterno()) {
-            valid = false;
-        }
-
-        if (!validarMaterno()) {
-            valid = false;
-        }
-
-        if (!validarMatricula()) {
-            valid = false;
-        }
-
-        if (!validarCorreo()) {
-            valid = false;
-        }
-
-        if (!validarEdad()) {
-            valid = false;
-        }
-
-        if (!validarSexo()) {
-            valid = false;
-        }
-
-        if (valid) {
-            new OpcionesAlumnos();
-            dispose();
-        }
-    }
-
-    private void limpiarErrores() {
-        errorNombre.setText("");
-        errorPaterno.setText("");
-        errorMaterno.setText("");
-        errorMatricula.setText("");
-        errorCorreo.setText("");
-        errorEdad.setText("");
-        errorSexo.setText("");
-    }
-
-    private boolean validarNombre() {
-        if (campoTextoNombreAlumno.getText().trim().isEmpty()) {
-            errorNombre.setText("El nombre es obligatorio");
-            return false;
-        }
-        return true;
-    }
-
-    private boolean validarPaterno() {
-        if (campoTextoApellidoPaterno.getText().trim().isEmpty()) {
-            errorPaterno.setText("El apellido paterno es obligatorio");
-            return false;
-        }
-        return true;
-    }
-
-    private boolean validarMaterno() {
-        if (campoTextoApellidoMaterno.getText().trim().isEmpty()) {
-            errorMaterno.setText("El apellido materno es obligatorio");
-            return false;
-        }
-        return true;
-    }
-
-    private boolean validarMatricula() {
-        if (campoTextoMatriculaAlumno.getText().trim().isEmpty()) {
-            errorMatricula.setText("La matrícula es obligatoria");
-            return false;
-        }
-        return true;
-    }
-
-    private boolean validarCorreo() {
-        if (campoTextoCorreoAlumno.getText().trim().isEmpty()) {
-            errorCorreo.setText("El correo es obligatorio");
-            return false;
-        }
-        if (!campoTextoCorreoAlumno.getText().contains("@")) {
-            errorCorreo.setText("Email inválido");
-            return false;
-        }
-        return true;
-    }
-
-    private boolean validarEdad() {
-        if (campoTextoEdadAlumno.getText().trim().isEmpty()) {
-            errorEdad.setText("La edad es obligatoria");
-            return false;
-        }
-        return true;
-    }
-
-    private boolean validarSexo() {
-        if (!botonRadioMujer.isSelected() && !botonRadioHombre.isSelected()) {
-            errorSexo.setText("Seleccione un sexo");
-            return false;
-        }
-        return true;
     }
 
     private JPanel createField(String labelText, Component field, JLabel errorLabel) {
@@ -294,4 +165,34 @@ public class FormularioRegistro extends JFrame {
         
         return panel;
     }
+
+    public String getNombre() { return campoTextoNombreAlumno.getText(); }
+    public String getPaterno() { return campoTextoApellidoPaterno.getText(); }
+    public String getMaterno() { return campoTextoApellidoMaterno.getText(); }
+    public String getMatricula() { return campoTextoMatriculaAlumno.getText(); }
+    public String getCorreo() { return campoTextoCorreoAlumno.getText(); }
+    public String getEdad() { return campoTextoEdadAlumno.getText(); }
+    public boolean isMujerSelected() { return botonRadioMujer.isSelected(); }
+    public boolean isHombreSelected() { return botonRadioHombre.isSelected(); }
+
+    public void setErrorNombre(String text) { errorNombre.setText(text); }
+    public void setErrorPaterno(String text) { errorPaterno.setText(text); }
+    public void setErrorMaterno(String text) { errorMaterno.setText(text); }
+    public void setErrorMatricula(String text) { errorMatricula.setText(text); }
+    public void setErrorCorreo(String text) { errorCorreo.setText(text); }
+    public void setErrorEdad(String text) { errorEdad.setText(text); }
+    public void setErrorSexo(String text) { errorSexo.setText(text); }
+
+    public void limpiarErrores() {
+        errorNombre.setText("");
+        errorPaterno.setText("");
+        errorMaterno.setText("");
+        errorMatricula.setText("");
+        errorCorreo.setText("");
+        errorEdad.setText("");
+        errorSexo.setText("");
+    }
+
+    public JButton getBtnValidate() { return btnValidate; }
+    public JButton getBtnRegresar() { return btnRegresar; }
 }
