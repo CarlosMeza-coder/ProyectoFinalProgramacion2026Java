@@ -2,11 +2,15 @@ package controladores;
 
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.List;
 
 import excepciones.InvalidPassword;
 import excepciones.InvalidUser;
+import models.User;
+import repositorio.UserRepository;
 import views.FormularioRegistro;
 import views.ViewLogin;
+import views.ViewRegistroUsuario;
 
 public class LoginController {
 
@@ -23,10 +27,10 @@ public class LoginController {
         view.getLblRegister().addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                FormularioRegistro vistaRegistro = new FormularioRegistro();
-                new RegistroController(vistaRegistro);
-                
-                view.getWindow().dispose();
+                ViewRegistroUsuario vistaRegistro = new ViewRegistroUsuario(view.getWindow());
+                new RegistroUsuarioController(vistaRegistro);
+                view.getWindow().setContentPane(vistaRegistro);
+                view.getWindow().revalidate();
             }
         });
     }
@@ -36,10 +40,8 @@ public class LoginController {
 
         try {
             validarCredenciales();
-            
-            FormularioRegistro vistaRegistro = new FormularioRegistro();
-            new RegistroController(vistaRegistro);
-            
+            FormularioRegistro vistaFormulario = new FormularioRegistro();
+            new RegistroController(vistaFormulario);
             view.getWindow().dispose();
         } catch (InvalidUser e) {
             view.setEmailError(e.getMessage());
@@ -49,23 +51,44 @@ public class LoginController {
     }
 
     private void validarCredenciales() throws InvalidUser, InvalidPassword {
-        String email = view.getEmail();
-        String password = view.getPassword();
+        String emailInput = view.getEmail().trim();
+        String passwordInput = view.getPassword().trim();
 
-        if (email.trim().isEmpty()) {
+        if (emailInput.isEmpty()) {
             throw new InvalidUser("El correo es obligatorio");
         }
-        
-        if (!email.trim().isEmpty() && !email.equals("madero@uabcs.com")) {
-            throw new InvalidUser();
-        }
 
-        if (password.trim().isEmpty()) {
+        if (passwordInput.isEmpty()) {
             throw new InvalidPassword("La contraseña es obligatoria");
         }
 
-        if (!password.trim().isEmpty() && !password.equals("1234")) {
-            throw new InvalidPassword();
+        try {
+            UserRepository repo = new UserRepository();
+            List<User> usuarios = repo.getUsers();
+            
+            User usuarioEncontrado = null;
+
+            for (User u : usuarios) {
+                if (u.getEmail().equals(emailInput)) {
+                    usuarioEncontrado = u;
+                    break;
+                }
+            }
+
+            if (usuarioEncontrado == null) {
+                throw new InvalidUser("Usuario no encontrado");
+            }
+
+            if (!usuarioEncontrado.getPassword().equals(passwordInput)) {
+                throw new InvalidPassword("Contraseña incorrecta");
+            }
+
+        } catch (InvalidUser e) {
+            throw e;
+        } catch (InvalidPassword e) {
+            throw e;
+        } catch (Exception e) {
+            throw new InvalidUser("Error de conexion con el archivo de usuarios");
         }
     }
 }

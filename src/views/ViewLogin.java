@@ -41,7 +41,7 @@ public class ViewLogin extends JPanel {
         labelTitulo.setFont(new Font("Arial", Font.BOLD, 25));
         container.addItem(labelTitulo, BorderLayout.NORTH);
 
-        GridPanel form = new GridPanel(8, 1, 0, 5);
+        GridPanel form = new GridPanel(9, 1, 0, 5);
         form.setBackground(Color.WHITE);
 
         JLabel labelCorreo = new JLabel("Ingrese su correo electrónico");
@@ -70,6 +70,21 @@ public class ViewLogin extends JPanel {
         lblContrasenaRequerida.setFont(new Font("Arial", Font.PLAIN, 12));
         form.addItem(lblContrasenaRequerida);
 
+        lblRegister = new JLabel("¿No tienes cuenta? Regístrate aquí");
+        lblRegister.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        lblRegister.setFont(new Font("Arial", Font.BOLD, 14));
+        
+        lblRegister.addMouseListener(new MouseAdapter() {
+            public void mouseEntered(MouseEvent e) {
+                lblRegister.setForeground(Color.GREEN);
+            }
+            public void mouseExited(MouseEvent e) {
+                lblRegister.setForeground(Color.BLACK);
+            }
+        });
+        
+        form.addItem(lblRegister);
+
         container.addItem(form, BorderLayout.CENTER);
 
         FlowPanel buttonContainer = new FlowPanel(FlowLayout.LEFT);
@@ -94,22 +109,6 @@ public class ViewLogin extends JPanel {
         });
         
         buttonContainer.addItem(botonIngresar);
-        
-        lblRegister = new JLabel("¿No tienes cuenta? Regístrate aquí");
-        lblRegister.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        lblRegister.setFont(new Font("Arial", Font.BOLD, 14));
-        
-        lblRegister.addMouseListener(new MouseAdapter() {
-            public void mouseEntered(MouseEvent e) {
-                lblRegister.setForeground(Color.GREEN);
-            }
-            public void mouseExited(MouseEvent e) {
-                lblRegister.setForeground(Color.BLACK);
-            }
-        });
-        
-        buttonContainer.addItem(lblRegister);
-
         container.addItem(buttonContainer, BorderLayout.SOUTH);
     }
     
@@ -123,7 +122,6 @@ public class ViewLogin extends JPanel {
         c.setForeground(Color.BLACK);
     }
 
-  
     public String getEmail() {
         return txtEmail.getText();
     }
@@ -144,7 +142,6 @@ public class ViewLogin extends JPanel {
         return window;
     }
 
-    
     public void setEmailError(String error) {
         lblEmailRequerido.setText(error);
     }
