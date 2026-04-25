@@ -124,3 +124,6 @@ public class OpcionesAlumnos extends JFrame {
         }
     }
 }
+
+
+
