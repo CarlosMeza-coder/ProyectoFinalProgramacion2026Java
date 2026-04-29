@@ -27,7 +27,7 @@ public class UserTableModel extends AbstractTableModel {
         User u = users.get(rowIndex);
         switch (columnIndex) {
             case 0: return u.getEmail();
-            case 1: return u.getPassword();
+            case 1: return u.getPass();
             case 2: return u.getPais();
             case 3: return u.getLenguaje();
             case 4: return u.getGenero();

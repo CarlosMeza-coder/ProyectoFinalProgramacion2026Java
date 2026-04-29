@@ -79,7 +79,7 @@ public class LoginController {
                 throw new InvalidUser("Usuario no encontrado");
             }
 
-            if (!usuarioEncontrado.getPassword().equals(passwordInput)) {
+            if (!usuarioEncontrado.getPass().equals(passwordInput)) {
                 throw new InvalidPassword("Contraseña incorrecta");
             }
 

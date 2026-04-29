@@ -14,7 +14,16 @@ public class User {
         this.lenguaje = lenguaje;
         this.genero = genero;
     }
-
+    
+    public User (String email, String pass) {
+    	 this.email = email;
+         this.pass = pass;
+    }
+    
+    
+    
+    
+    
     public static User fromCsv(String line) {
         String[] parts = line.split(",");
         return new User(parts[0], parts[1], parts[2], parts[3], parts[4]);
@@ -26,10 +35,10 @@ public class User {
 
    
     public String getEmail() { return email; }
-    public String getPassword() { return pass; }
-    public String getCountry() { return pais; }
-    public String getLanguage() { return lenguaje; }
-    public String getGender() { return genero; }
+    public String getPass() { return pass; }
+    public String getpais() { return pais; }
+    public String getlenguaje() { return lenguaje; }
+    public String getgenero() { return genero; }
 
 	public Object getPais() {
 		// TODO Auto-generated method stub

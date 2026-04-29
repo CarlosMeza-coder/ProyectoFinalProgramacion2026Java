@@ -10,7 +10,7 @@ public class MainWindow extends JFrame {
         setSize(600, 400);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        Users usersPanel = new Users("usuarios.csv");
+        Users usersPanel = new Users("Users.csv");
         add(usersPanel);
 
         setVisible(true);
