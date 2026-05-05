@@ -1,22 +1,24 @@
 package views;
 
 import javax.swing.*;
-
-import models.Users;
+import controladores.UserController; // Importamos el nuevo controlador
 
 public class MainWindow extends JFrame {
-    public MainWindow() {
-        setTitle("Sistema de Usuarios");
-        setSize(600, 400);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        Users usersPanel = new Users("Users.csv");
-        add(usersPanel);
+    public MainWindow() {
+        setTitle("Sistema de Usuarios - Modo Desarrollo");
+        setSize(800, 500);
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE); 
+        setLocationRelativeTo(null);
+
+        UsersView usersView = new UsersView();
+
+        UserController controller = new UserController(usersView);
+
+        controller.loadUsers();
+
+        add(usersView);
 
         setVisible(true);
-    }
-
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(MainWindow::new);
     }
 }

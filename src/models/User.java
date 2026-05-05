@@ -7,6 +7,9 @@ public class User {
     private String lenguaje;
     private String genero;
 
+    public User() {
+    }
+
     public User(String email, String pass, String pais, String lenguaje, String genero) {
         this.email = email;
         this.pass = pass;
@@ -14,44 +17,19 @@ public class User {
         this.lenguaje = lenguaje;
         this.genero = genero;
     }
-    
-    public User (String email, String pass) {
-    	 this.email = email;
-         this.pass = pass;
-    }
-    
-    
-    
-    
-    
-    public static User fromCsv(String line) {
-        String[] parts = line.split(",");
-        return new User(parts[0], parts[1], parts[2], parts[3], parts[4]);
-    }
 
-    public String toCsv() {
-        return String.join(",", email, pass, pais, lenguaje, genero);
-    }
-
-   
     public String getEmail() { return email; }
+    public void setEmail(String email) { this.email = email; }
+
     public String getPass() { return pass; }
-    public String getpais() { return pais; }
-    public String getlenguaje() { return lenguaje; }
-    public String getgenero() { return genero; }
+    public void setPass(String pass) { this.pass = pass; }
 
-	public Object getPais() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    public String getPais() { return pais; }
+    public void setPais(String pais) { this.pais = pais; }
 
-	public Object getLenguaje() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    public String getLenguaje() { return lenguaje; }
+    public void setLenguaje(String lenguaje) { this.lenguaje = lenguaje; }
 
-	public Object getGenero() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    public String getGenero() { return genero; }
+    public void setGenero(String genero) { this.genero = genero; }
 }

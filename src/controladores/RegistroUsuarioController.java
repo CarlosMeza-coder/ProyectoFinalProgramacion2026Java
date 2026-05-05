@@ -22,19 +22,24 @@ public class RegistroUsuarioController {
     private void registrar() {
         String email = view.getEmail().trim();
         String pass = view.getPassword().trim();
+        String pais = view.getPais().trim();
+        String lenguaje = view.getLenguaje().trim();
+        String genero = view.getGenero().trim();
 
-        if(email.isEmpty() || pass.isEmpty()) {
-            JOptionPane.showMessageDialog(null, "Llena todos los campos");
+        if(email.isEmpty() || pass.isEmpty() || pais.isEmpty() || lenguaje.isEmpty() || genero.isEmpty()) {
+            JOptionPane.showMessageDialog(null, "¡Error! Todos los campos son obligatorios.");
             return;
         }
 
         try {
-            User nuevo = new User(email, pass);
-            repo.save(nuevo);
-            JOptionPane.showMessageDialog(null, "Cuenta creada. Ya puedes iniciar sesión.");
+            User nuevo = new User(email, pass, pais, lenguaje, genero);
+            
+            repo.save(nuevo); 
+            
+            JOptionPane.showMessageDialog(null, "Cuenta creada exitosamente para: " + email);
             volverAlLogin();
         } catch (IOException e) {
-            JOptionPane.showMessageDialog(null, "Error al guardar en CSV");
+            JOptionPane.showMessageDialog(null, "Error fatal al escribir en el archivo CSV");
         }
     }
 

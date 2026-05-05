@@ -1,9 +1,6 @@
-/assets/
-/componets/
+/services/
+/views/
 /controladores/
-/excepciones/
-/img/
-/main/
+/assets/
 /models/
 /repositorio/
-/views/

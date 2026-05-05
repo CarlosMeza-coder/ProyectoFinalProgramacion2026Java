@@ -1,51 +1,59 @@
 package repositorio;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.InputStreamReader;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
-
 import models.User;
 
 public class UserRepository {
+    private final String FILE = "src/assets/files/users.json";
+    private final ObjectMapper mapper;
 
-    private final String FILE = "src/assets/files/users.csv";
-    
-    public void save(User user) throws IOException {
+    public UserRepository() {
+        this.mapper = new ObjectMapper();
+        this.mapper.enable(SerializationFeature.INDENT_OUTPUT);
+    }
+
+    public List<User> getUsers() throws IOException {
         File file = new File(FILE);
-        if (file.getParentFile() != null) {
-            file.getParentFile().mkdirs();
+        if (!file.exists() || file.length() == 0) {
+            return new ArrayList<>();
         }
-
-        try(BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(FILE, true), StandardCharsets.UTF_8))) {
-            writer.write(user.toCsv());
-            writer.newLine();
+        try {
+            return mapper.readValue(file, new TypeReference<List<User>>() {});
+        } catch (IOException e) {
+            System.err.println("Error al procesar el JSON: " + e.getMessage());
+            return new ArrayList<>();
         }
     }
-    
-    public List<User> getUsers() throws IOException {
-        List<User> users = new ArrayList<>();
-        File file = new File(FILE);
 
-        if (!file.exists()) {
-            return users;
+    public void save(User user) throws IOException {
+        List<User> users = getUsers();
+        users.add(user);
+        updateAll(users);
+    }
+
+    public void updateAll(List<User> users) throws IOException {
+        mapper.writeValue(new File(FILE), users);
+    }
+
+    public void update(int index, User updatedUser) throws IOException {
+        List<User> users = getUsers();
+        if (index >= 0 && index < users.size()) {
+            users.set(index, updatedUser); 
+            updateAll(users); 
         }
-        
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8))) {
-            String line;
-            while((line = reader.readLine()) != null) {
-                if (!line.trim().isEmpty()) {
-                    users.add(User.fromCsv(line));
-                }
-            }
+    }
+
+    public void delete(int index) throws IOException {
+        List<User> users = getUsers();
+        if (index >= 0 && index < users.size()) {
+            users.remove(index); 
+            updateAll(users);
         }
-        return users;
     }
 }

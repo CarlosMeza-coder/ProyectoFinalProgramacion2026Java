@@ -24,6 +24,7 @@ public class ViewLogin extends JPanel {
     private JLabel lblEmailRequerido;
     private JLabel lblContrasenaRequerida;
     private JButton botonIngresar;
+    private JButton botonMostrarTabla; 
     private JLabel lblRegister;
     
     Color defaultButtonColor;
@@ -95,7 +96,6 @@ public class ViewLogin extends JPanel {
         botonIngresar.setForeground(Color.BLACK);
         botonIngresar.setFont(new Font("Arial", Font.BOLD, 16));
         botonIngresar.setPreferredSize(new Dimension(120, 40));
-        botonIngresar.setToolTipText("Clic para entrar");
         
         defaultButtonColor = botonIngresar.getBackground();
         
@@ -107,8 +107,26 @@ public class ViewLogin extends JPanel {
                 resetBackground(botonIngresar);
             }
         });
+
+        botonMostrarTabla = new JButton("Mostrar tabla");
+        botonMostrarTabla.setBackground(new Color(200, 200, 200)); 
+        botonMostrarTabla.setFont(new Font("Arial", Font.BOLD, 14));
+        botonMostrarTabla.setPreferredSize(new Dimension(130, 40));
+        
+        botonMostrarTabla.addMouseListener(new MouseAdapter() {
+            public void mouseEntered(MouseEvent e) {
+                botonMostrarTabla.setBackground(Color.DARK_GRAY);
+                botonMostrarTabla.setForeground(Color.WHITE);
+            }
+            public void mouseExited(MouseEvent e) {
+                botonMostrarTabla.setBackground(new Color(200, 200, 200));
+                botonMostrarTabla.setForeground(Color.BLACK);
+            }
+        });
         
         buttonContainer.addItem(botonIngresar);
+        buttonContainer.addItem(botonMostrarTabla); 
+        
         container.addItem(buttonContainer, BorderLayout.SOUTH);
     }
     
@@ -122,34 +140,15 @@ public class ViewLogin extends JPanel {
         c.setForeground(Color.BLACK);
     }
 
-    public String getEmail() {
-        return txtEmail.getText();
-    }
+    public String getEmail() { return txtEmail.getText(); }
+    public String getPassword() { return new String(contrasena.getPassword()); }
+    public JButton getBotonIngresar() { return botonIngresar; }
+    public JButton getBotonMostrarTabla() { return botonMostrarTabla; } // 
+    public JLabel getLblRegister() { return lblRegister; }
+    public LoginWindow getWindow() { return window; }
 
-    public String getPassword() {
-        return new String(contrasena.getPassword());
-    }
-
-    public JButton getBotonIngresar() {
-        return botonIngresar;
-    }
-
-    public JLabel getLblRegister() {
-        return lblRegister;
-    }
-
-    public LoginWindow getWindow() {
-        return window;
-    }
-
-    public void setEmailError(String error) {
-        lblEmailRequerido.setText(error);
-    }
-
-    public void setPasswordError(String error) {
-        lblContrasenaRequerida.setText(error);
-    }
-
+    public void setEmailError(String error) { lblEmailRequerido.setText(error); }
+    public void setPasswordError(String error) { lblContrasenaRequerida.setText(error); }
     public void clearErrors() {
         lblEmailRequerido.setText("");
         lblContrasenaRequerida.setText("");

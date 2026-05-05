@@ -8,6 +8,10 @@ public class ViewRegistroUsuario extends JPanel {
     private LoginWindow window;
     private JTextField txtEmail;
     private JPasswordField contrasena;
+    private JTextField txtPais;
+    private JTextField txtLenguaje;
+    private JTextField txtGenero;
+    
     private JButton botonRegistrar;
     private JButton botonVolver;
 
@@ -21,7 +25,7 @@ public class ViewRegistroUsuario extends JPanel {
         titulo.setFont(new Font("Arial", Font.BOLD, 22));
         add(titulo, BorderLayout.NORTH);
 
-        JPanel form = new JPanel(new GridLayout(6, 1, 0, 5));
+        JPanel form = new JPanel(new GridLayout(10, 1, 0, 5));
         form.setBackground(Color.WHITE);
 
         form.add(new JLabel("Correo electrónico:"));
@@ -31,6 +35,18 @@ public class ViewRegistroUsuario extends JPanel {
         form.add(new JLabel("Contraseña:"));
         contrasena = new JPasswordField();
         form.add(contrasena);
+
+        form.add(new JLabel("País:"));
+        txtPais = new JTextField();
+        form.add(txtPais);
+
+        form.add(new JLabel("Lenguaje favorito:"));
+        txtLenguaje = new JTextField();
+        form.add(txtLenguaje);
+
+        form.add(new JLabel("Género:"));
+        txtGenero = new JTextField();
+        form.add(txtGenero);
 
         add(form, BorderLayout.CENTER);
 
@@ -49,6 +65,10 @@ public class ViewRegistroUsuario extends JPanel {
 
     public String getEmail() { return txtEmail.getText(); }
     public String getPassword() { return new String(contrasena.getPassword()); }
+    public String getPais() { return txtPais.getText(); }
+    public String getLenguaje() { return txtLenguaje.getText(); }
+    public String getGenero() { return txtGenero.getText(); }
+    
     public JButton getBotonRegistrar() { return botonRegistrar; }
     public JButton getBotonVolver() { return botonVolver; }
     public LoginWindow getWindow() { return window; }

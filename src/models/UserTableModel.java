@@ -1,6 +1,5 @@
 package models;
 
-
 import javax.swing.table.AbstractTableModel;
 import java.util.List;
 
@@ -39,5 +38,13 @@ public class UserTableModel extends AbstractTableModel {
     public String getColumnName(int column) {
         return columnNames[column];
     }
-}
 
+    public User getUserAt(int rowIndex) {
+        return users.get(rowIndex);
+    }
+
+    public void setUsers(List<User> users) {
+        this.users = users;
+        fireTableDataChanged();
+    }
+}

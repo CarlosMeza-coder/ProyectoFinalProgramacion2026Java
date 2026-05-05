@@ -11,6 +11,7 @@ import repositorio.UserRepository;
 import views.FormularioRegistro;
 import views.ViewLogin;
 import views.ViewRegistroUsuario;
+import views.MainWindow; // <--- IMPORTANTE: Importamos la ventana de la tabla
 
 public class LoginController {
 
@@ -23,6 +24,8 @@ public class LoginController {
 
     public void registerListeners() {
         view.getBotonIngresar().addActionListener(e -> login());
+        
+        view.getBotonMostrarTabla().addActionListener(e -> abrirTabla());
 
         view.getLblRegister().addMouseListener(new MouseAdapter() {
             @Override
@@ -33,6 +36,12 @@ public class LoginController {
                 view.getWindow().revalidate();
             }
         });
+    }
+
+    private void abrirTabla() {
+        MainWindow principal = new MainWindow();
+        principal.setVisible(true);
+        view.getWindow().dispose(); 
     }
 
     private void login() {
