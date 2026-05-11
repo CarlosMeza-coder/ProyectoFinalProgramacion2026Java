@@ -1,103 +1,77 @@
 package controladores;
 
+import java.io.IOException;
+import java.util.List;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.List;
-
-import excepciones.InvalidPassword;
-import excepciones.InvalidUser;
+import javax.swing.JOptionPane;
 import models.User;
 import repositorio.UserRepository;
-import views.FormularioRegistro;
 import views.ViewLogin;
-import views.ViewRegistroUsuario;
-import views.MainWindow; // <--- IMPORTANTE: Importamos la ventana de la tabla
+import views.ProfesorMainView;
+import views.FormularioRegistro;
+import excepciones.InvalidUser;
+import excepciones.InvalidPassword;
 
 public class LoginController {
-
     private ViewLogin view;
+    private UserRepository repo;
 
     public LoginController(ViewLogin view) {
         this.view = view;
-        registerListeners();
+        this.repo = new UserRepository();
+        this.initEvents();
     }
 
-    public void registerListeners() {
-        view.getBotonIngresar().addActionListener(e -> login());
-        
-        view.getBotonMostrarTabla().addActionListener(e -> abrirTabla());
+    private void initEvents() {
+        view.getBtnLogin().addActionListener(e -> {
+            String email = view.getTxtEmail().getText().trim();
+            String pass = new String(view.getTxtPass().getPassword());
+
+            try {
+                if (email.isEmpty() || pass.isEmpty()) {
+                    throw new InvalidUser("No puedes dejar el correo o la contraseña vacíos.");
+                }
+
+                if (!email.contains("@") || !email.contains(".")) {
+                    throw new InvalidUser("El formato del correo electrónico es inválido.");
+                }
+
+                if (validarAcceso(email, pass)) {
+                    view.getWindow().dispose();
+                    ProfesorMainView mainView = new ProfesorMainView();
+                    new ProfesorController(mainView);
+                    mainView.setVisible(true);
+                } else {
+                    throw new InvalidUser("Credenciales incorrectas. Verifica tu correo o contraseña.");
+                }
+
+            } catch (InvalidUser ex) {
+                JOptionPane.showMessageDialog(view, ex.getMessage(), "Error de Inicio de Sesión", JOptionPane.WARNING_MESSAGE);
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(view, "Ocurrió un error inesperado: " + ex.getMessage());
+            }
+        });
 
         view.getLblRegister().addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                ViewRegistroUsuario vistaRegistro = new ViewRegistroUsuario(view.getWindow());
-                new RegistroUsuarioController(vistaRegistro);
-                view.getWindow().setContentPane(vistaRegistro);
-                view.getWindow().revalidate();
+                view.getWindow().dispose();
+                FormularioRegistro vistaRegistro = new FormularioRegistro();
+                new RegistroController(vistaRegistro);
+                vistaRegistro.setVisible(true);
             }
         });
     }
 
-    private void abrirTabla() {
-        MainWindow principal = new MainWindow();
-        principal.setVisible(true);
-        view.getWindow().dispose(); 
-    }
-
-    private void login() {
-        view.clearErrors();
-
+    private boolean validarAcceso(String email, String pass) {
         try {
-            validarCredenciales();
-            FormularioRegistro vistaFormulario = new FormularioRegistro();
-            new RegistroController(vistaFormulario);
-            view.getWindow().dispose();
-        } catch (InvalidUser e) {
-            view.setEmailError(e.getMessage());
-        } catch (InvalidPassword e) {
-            view.setPasswordError(e.getMessage());
-        }
-    }
-
-    private void validarCredenciales() throws InvalidUser, InvalidPassword {
-        String emailInput = view.getEmail().trim();
-        String passwordInput = view.getPassword().trim();
-
-        if (emailInput.isEmpty()) {
-            throw new InvalidUser("El correo es obligatorio");
-        }
-
-        if (passwordInput.isEmpty()) {
-            throw new InvalidPassword("La contraseña es obligatoria");
-        }
-
-        try {
-            UserRepository repo = new UserRepository();
             List<User> usuarios = repo.getUsers();
-            
-            User usuarioEncontrado = null;
-
-            for (User u : usuarios) {
-                if (u.getEmail().equals(emailInput)) {
-                    usuarioEncontrado = u;
-                    break;
-                }
-            }
-
-            if (usuarioEncontrado == null) {
-                throw new InvalidUser("Usuario no encontrado");
-            }
-
-            if (!usuarioEncontrado.getPass().equals(passwordInput)) {
-                throw new InvalidPassword("Contraseña incorrecta");
-            }
-
-        } catch (InvalidUser e) {
-            throw e;
-        } catch (InvalidPassword e) {
-            throw e;
-        } catch (Exception e) {
-            throw new InvalidUser("Error de conexion con el archivo de usuarios");
+            return usuarios.stream().anyMatch(u -> 
+                u.getEmail().equals(email) && u.getPass().equals(pass)
+            );
+        } catch (IOException e) {
+            return false;
         }
     }
 }

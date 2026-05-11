@@ -3,20 +3,16 @@ package views;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.FlowLayout;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
-import javax.swing.ButtonGroup;
 import javax.swing.JButton; 
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JRadioButton;
+import javax.swing.JPasswordField; // Importante para ocultar la contraseña
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
@@ -25,32 +21,20 @@ import componets.ErrorLabel;
 
 public class FormularioRegistro extends JFrame {
 
-    private JTextField campoTextoNombreAlumno;
-    private JTextField campoTextoApellidoPaterno;
-    private JTextField campoTextoApellidoMaterno;
-    private JTextField campoTextoMatriculaAlumno;
-    private JTextField campoTextoCorreoAlumno;
-    private JTextField campoTextoEdadAlumno;
-    
-    private JRadioButton botonRadioMujer;
-    private JRadioButton botonRadioHombre;
+    private JTextField txtEmail;
+    private JPasswordField txtPassword;
 
-    private ErrorLabel errorNombre;
-    private ErrorLabel errorPaterno;
-    private ErrorLabel errorMaterno;
-    private ErrorLabel errorMatricula;
-    private ErrorLabel errorCorreo;
-    private ErrorLabel errorEdad;
-    private ErrorLabel errorSexo;
+    private ErrorLabel errorEmail;
+    private ErrorLabel errorPassword;
     
-    private JButton btnValidate;
+    private JButton btnRegistrar;
     private JButton btnRegresar;
 
     public FormularioRegistro() {
-        setSize(350, 450);
+        setSize(350, 250); 
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-        setResizable(true);
-        setTitle("Registro de Alumno");
+        setResizable(false);
+        setTitle("Registro de Nueva Cuenta");
         setLocationRelativeTo(null);
         
         inicializarComponentesDeRegistro();
@@ -59,72 +43,34 @@ public class FormularioRegistro extends JFrame {
     }
 
     public void inicializarComponentesDeRegistro() {
-        JLabel etiquetaTituloRegistro = new JLabel("Registro nuevo alumno");
+        JLabel etiquetaTituloRegistro = new JLabel("Registrar Nuevo Profesor");
         etiquetaTituloRegistro.setHorizontalAlignment(SwingConstants.CENTER);
+        etiquetaTituloRegistro.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0));
         add(etiquetaTituloRegistro, BorderLayout.NORTH);
 
         JPanel panelFormularioRegistro = new JPanel();
         panelFormularioRegistro.setLayout(new BoxLayout(panelFormularioRegistro, BoxLayout.Y_AXIS));
-        panelFormularioRegistro.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        panelFormularioRegistro.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
 
-        campoTextoNombreAlumno = new JTextField(10);
-        aplicarFocus(campoTextoNombreAlumno);
-        errorNombre = new ErrorLabel();
+        txtEmail = new JTextField(15);
+        aplicarFocus(txtEmail);
+        errorEmail = new ErrorLabel();
         
-        campoTextoApellidoPaterno = new JTextField(10);
-        aplicarFocus(campoTextoApellidoPaterno);
-        errorPaterno = new ErrorLabel();
-        
-        campoTextoApellidoMaterno = new JTextField(10);
-        aplicarFocus(campoTextoApellidoMaterno);
-        errorMaterno = new ErrorLabel();
-        
-        campoTextoMatriculaAlumno = new JTextField(10);
-        aplicarFocus(campoTextoMatriculaAlumno);
-        errorMatricula = new ErrorLabel();
-        
-        campoTextoCorreoAlumno = new JTextField(10);
-        aplicarFocus(campoTextoCorreoAlumno);
-        errorCorreo = new ErrorLabel();
-        
-        campoTextoEdadAlumno = new JTextField(20);
-        aplicarFocus(campoTextoEdadAlumno);
-        campoTextoEdadAlumno.addKeyListener(new KeyAdapter() {
-            public void keyTyped(KeyEvent e) {
-                if (!Character.isDigit(e.getKeyChar())) {
-                    e.consume();
-                }
-            }
-        });
-        errorEdad = new ErrorLabel();
+        txtPassword = new JPasswordField(15);
+        aplicarFocus(txtPassword);
+        errorPassword = new ErrorLabel();
 
-        panelFormularioRegistro.add(createField("Nombre:", campoTextoNombreAlumno, errorNombre));
-        panelFormularioRegistro.add(createField("Apellido Paterno:", campoTextoApellidoPaterno, errorPaterno));
-        panelFormularioRegistro.add(createField("Apellido Materno:", campoTextoApellidoMaterno, errorMaterno));
-        panelFormularioRegistro.add(createField("Matrícula:", campoTextoMatriculaAlumno, errorMatricula));
-        panelFormularioRegistro.add(createField("Correo:", campoTextoCorreoAlumno, errorCorreo));
-        panelFormularioRegistro.add(createField("Edad:", campoTextoEdadAlumno, errorEdad));
-
-        JPanel panelSexo = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        botonRadioMujer = new JRadioButton("Mujer");
-        botonRadioHombre = new JRadioButton("Hombre");
-        ButtonGroup grupoSexoAlumno = new ButtonGroup();
-        grupoSexoAlumno.add(botonRadioMujer);
-        grupoSexoAlumno.add(botonRadioHombre);
-        panelSexo.add(botonRadioMujer);
-        panelSexo.add(botonRadioHombre);
-        
-        errorSexo = new ErrorLabel();
-        panelFormularioRegistro.add(createField("Sexo del alumno:", panelSexo, errorSexo));
+        panelFormularioRegistro.add(createField("Correo Electrónico:", txtEmail, errorEmail));
+        panelFormularioRegistro.add(createField("Contraseña:", txtPassword, errorPassword));
 
         JScrollPane panelDeslizableRegistro = new JScrollPane(panelFormularioRegistro);
-        panelDeslizableRegistro.setHorizontalScrollBar(null);
+        panelDeslizableRegistro.setBorder(null); 
         add(panelDeslizableRegistro, BorderLayout.CENTER);
 
         add(createButtonPanel(), BorderLayout.SOUTH);
     }
 
-    private void aplicarFocus(JTextField campo) {
+    private void aplicarFocus(JComponent campo) {
         campo.addFocusListener(new FocusAdapter() {
             public void focusGained(FocusEvent e) {
                 campo.setBackground(Color.LIGHT_GRAY);
@@ -138,10 +84,10 @@ public class FormularioRegistro extends JFrame {
     private JPanel createButtonPanel() {
         JPanel panel = new JPanel();
         
-        btnValidate = new JButton("Validar");
-        panel.add(btnValidate);
+        btnRegistrar = new JButton("Registrar");
+        panel.add(btnRegistrar);
         
-        btnRegresar = new JButton("Regresar");
+        btnRegresar = new JButton("Regresar al Login");
         panel.add(btnRegresar);
         
         return panel;
@@ -166,33 +112,17 @@ public class FormularioRegistro extends JFrame {
         return panel;
     }
 
-    public String getNombre() { return campoTextoNombreAlumno.getText(); }
-    public String getPaterno() { return campoTextoApellidoPaterno.getText(); }
-    public String getMaterno() { return campoTextoApellidoMaterno.getText(); }
-    public String getMatricula() { return campoTextoMatriculaAlumno.getText(); }
-    public String getCorreo() { return campoTextoCorreoAlumno.getText(); }
-    public String getEdad() { return campoTextoEdadAlumno.getText(); }
-    public boolean isMujerSelected() { return botonRadioMujer.isSelected(); }
-    public boolean isHombreSelected() { return botonRadioHombre.isSelected(); }
+    public String getEmail() { return txtEmail.getText(); }
+    public String getPassword() { return new String(txtPassword.getPassword()); }
+    
+    public JButton getBtnRegistrar() { return btnRegistrar; }
+    public JButton getBtnRegresar() { return btnRegresar; }
 
-    public void setErrorNombre(String text) { errorNombre.setText(text); }
-    public void setErrorPaterno(String text) { errorPaterno.setText(text); }
-    public void setErrorMaterno(String text) { errorMaterno.setText(text); }
-    public void setErrorMatricula(String text) { errorMatricula.setText(text); }
-    public void setErrorCorreo(String text) { errorCorreo.setText(text); }
-    public void setErrorEdad(String text) { errorEdad.setText(text); }
-    public void setErrorSexo(String text) { errorSexo.setText(text); }
+    public void setErrorEmail(String text) { errorEmail.setText(text); }
+    public void setErrorPassword(String text) { errorPassword.setText(text); }
 
     public void limpiarErrores() {
-        errorNombre.setText("");
-        errorPaterno.setText("");
-        errorMaterno.setText("");
-        errorMatricula.setText("");
-        errorCorreo.setText("");
-        errorEdad.setText("");
-        errorSexo.setText("");
+        errorEmail.setText("");
+        errorPassword.setText("");
     }
-
-    public JButton getBtnValidate() { return btnValidate; }
-    public JButton getBtnRegresar() { return btnRegresar; }
 }

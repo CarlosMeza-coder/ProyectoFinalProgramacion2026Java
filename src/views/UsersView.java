@@ -3,6 +3,8 @@ package views;
 import java.awt.*;
 import javax.swing.*;
 import javax.swing.table.*;
+
+import models.AlumnoTableModel;
 import models.UserTableModel; 
 import utils.AppFonts;
 
@@ -64,7 +66,7 @@ public class UsersView extends JPanel {
         });
     }
 
-    public void setTableModel(UserTableModel model) {
+    public void setTableModel(AlumnoTableModel model) {
         table.setModel(model);
     }
 

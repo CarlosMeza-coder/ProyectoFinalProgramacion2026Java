@@ -18,11 +18,11 @@ import com.itextpdf.io.font.constants.StandardFonts;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
-import models.User;
+import models.Alumno; // IMPORTANTE: Ahora importamos Alumno
 
 public class PDFExporter {
 
-    public static void export(List<User> users, String dest) throws IOException {
+    public static void exportAlumnos(List<Alumno> alumnos, String dest) throws IOException {
         File file = new File(dest);
         if (file.getParentFile() != null) {
             file.getParentFile().mkdirs();
@@ -32,13 +32,13 @@ public class PDFExporter {
         PdfDocument pdf = new PdfDocument(writer);
         Document document = new Document(pdf, PageSize.A4);
 
-        float[] columnWidths = {1, 4, 3, 3, 3, 3};
+        float[] columnWidths = {1, 3, 4, 4, 2, 2};
         Table table = new Table(UnitValue.createPercentArray(columnWidths)).useAllAvailableWidth();
 
         PdfFont fontBold = PdfFontFactory.createFont(StandardFonts.HELVETICA_BOLD);
 
         Cell mainHeader = new Cell(1, 6)
-                .add(new Paragraph("REPORTE GENERAL DE USUARIOS"))
+                .add(new Paragraph("REPORTE GENERAL DE ALUMNOS"))
                 .setFont(fontBold)
                 .setFontSize(14)
                 .setFontColor(DeviceGray.WHITE)
@@ -47,7 +47,7 @@ public class PDFExporter {
                 .setPadding(8);
         table.addHeaderCell(mainHeader);
 
-        String[] headers = {"#", "Email", "Password", "País", "Lenguaje", "Género"};
+        String[] headers = {"#", "Matrícula", "Nombre", "Email", "Semestre", "Grupo"};
         for (String h : headers) {
             table.addHeaderCell(new Cell()
                     .add(new Paragraph(h))
@@ -57,13 +57,13 @@ public class PDFExporter {
         }
 
         int i = 1;
-        for (User u : users) {
+        for (Alumno a : alumnos) {
             table.addCell(new Cell().add(new Paragraph(String.valueOf(i++))).setTextAlignment(TextAlignment.CENTER));
-            table.addCell(new Cell().add(new Paragraph(u.getEmail())));
-            table.addCell(new Cell().add(new Paragraph(u.getPass())));
-            table.addCell(new Cell().add(new Paragraph(u.getPais())));
-            table.addCell(new Cell().add(new Paragraph(u.getLenguaje())));
-            table.addCell(new Cell().add(new Paragraph(u.getGenero())));
+            table.addCell(new Cell().add(new Paragraph(a.getMatricula())).setTextAlignment(TextAlignment.CENTER));
+            table.addCell(new Cell().add(new Paragraph(a.getNombre())));
+            table.addCell(new Cell().add(new Paragraph(a.getEmail())));
+            table.addCell(new Cell().add(new Paragraph(a.getSemestre())).setTextAlignment(TextAlignment.CENTER));
+            table.addCell(new Cell().add(new Paragraph(a.getGrupo())).setTextAlignment(TextAlignment.CENTER));
         }
 
         document.add(table);

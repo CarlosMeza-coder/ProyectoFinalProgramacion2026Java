@@ -26,34 +26,18 @@ public class UserRepository {
         try {
             return mapper.readValue(file, new TypeReference<List<User>>() {});
         } catch (IOException e) {
-            System.err.println("Error al procesar el JSON: " + e.getMessage());
+            System.err.println("Error al procesar el JSON de usuarios: " + e.getMessage());
             return new ArrayList<>();
         }
-    }
-
-    public void save(User user) throws IOException {
-        List<User> users = getUsers();
-        users.add(user);
-        updateAll(users);
     }
 
     public void updateAll(List<User> users) throws IOException {
         mapper.writeValue(new File(FILE), users);
     }
 
-    public void update(int index, User updatedUser) throws IOException {
+    public void save(User user) throws IOException {
         List<User> users = getUsers();
-        if (index >= 0 && index < users.size()) {
-            users.set(index, updatedUser); 
-            updateAll(users); 
-        }
-    }
-
-    public void delete(int index) throws IOException {
-        List<User> users = getUsers();
-        if (index >= 0 && index < users.size()) {
-            users.remove(index); 
-            updateAll(users);
-        }
+        users.add(user);
+        updateAll(users);
     }
 }

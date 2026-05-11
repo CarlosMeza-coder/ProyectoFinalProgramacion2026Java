@@ -88,10 +88,7 @@ public class UserFormDialog extends JDialog {
     private void loadData() {
         if (user != null) {
             txtEmail.setText(user.getEmail());
-            txtPass.setText(user.getPass());
-            cboPais.setSelectedItem(user.getPais());
-            txtLenguaje.setText(user.getLenguaje());
-            cboGenero.setSelectedItem(user.getGenero());
+            txtPass.setText(user.getPass());          
         }
     }
 
@@ -103,13 +100,10 @@ public class UserFormDialog extends JDialog {
         String genero = (String) cboGenero.getSelectedItem();
 
         if (user == null) {
-            user = new User(email, pass, pais, lenguaje, genero);
+            user = new User(email, pass);
         } else {
             user.setEmail(email);
-            user.setPass(pass);
-            user.setPais(pais);
-            user.setLenguaje(lenguaje);
-            user.setGenero(genero);
+            user.setPass(pass);           
         }
 
         saved = true;

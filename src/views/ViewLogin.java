@@ -20,10 +20,10 @@ public class ViewLogin extends JPanel {
     
     private LoginWindow window;
     private JTextField txtEmail;
-    private JPasswordField contrasena;
+    private JPasswordField txtPass; 
     private JLabel lblEmailRequerido;
     private JLabel lblContrasenaRequerida;
-    private JButton botonIngresar;
+    private JButton btnLogin; 
     private JButton botonMostrarTabla; 
     private JLabel lblRegister;
     
@@ -38,7 +38,7 @@ public class ViewLogin extends JPanel {
         setLayout(new BorderLayout()); 
         add(container);
 
-        JLabel labelTitulo = new JLabel("Inicio de sesion");
+        JLabel labelTitulo = new JLabel("Inicio de sesión");
         labelTitulo.setFont(new Font("Arial", Font.BOLD, 25));
         container.addItem(labelTitulo, BorderLayout.NORTH);
 
@@ -62,9 +62,9 @@ public class ViewLogin extends JPanel {
         labelPassword.setFont(new Font("Arial", Font.PLAIN, 14));
         form.addItem(labelPassword);
 
-        contrasena = new JPasswordField();
-        contrasena.setFont(new Font("Arial", Font.PLAIN, 18));
-        form.addItem(contrasena);
+        txtPass = new JPasswordField(); 
+        txtPass.setFont(new Font("Arial", Font.PLAIN, 18));
+        form.addItem(txtPass);
 
         lblContrasenaRequerida = new JLabel();
         lblContrasenaRequerida.setForeground(Color.RED);
@@ -91,20 +91,20 @@ public class ViewLogin extends JPanel {
         FlowPanel buttonContainer = new FlowPanel(FlowLayout.LEFT);
         buttonContainer.setBackground(Color.WHITE);
 
-        botonIngresar = new JButton("Ingresar");
-        botonIngresar.setBackground(Color.CYAN);
-        botonIngresar.setForeground(Color.BLACK);
-        botonIngresar.setFont(new Font("Arial", Font.BOLD, 16));
-        botonIngresar.setPreferredSize(new Dimension(120, 40));
+        btnLogin = new JButton("Ingresar"); 
+        btnLogin.setBackground(Color.CYAN);
+        btnLogin.setForeground(Color.BLACK);
+        btnLogin.setFont(new Font("Arial", Font.BOLD, 16));
+        btnLogin.setPreferredSize(new Dimension(120, 40));
         
-        defaultButtonColor = botonIngresar.getBackground();
+        defaultButtonColor = btnLogin.getBackground();
         
-        botonIngresar.addMouseListener(new MouseAdapter() {
+        btnLogin.addMouseListener(new MouseAdapter() {
             public void mouseEntered(MouseEvent e) {
-                changeBackground(botonIngresar);
+                changeBackground(btnLogin);
             }
             public void mouseExited(MouseEvent e) {
-                resetBackground(botonIngresar);
+                resetBackground(btnLogin);
             }
         });
 
@@ -124,7 +124,7 @@ public class ViewLogin extends JPanel {
             }
         });
         
-        buttonContainer.addItem(botonIngresar);
+        buttonContainer.addItem(btnLogin);
         buttonContainer.addItem(botonMostrarTabla); 
         
         container.addItem(buttonContainer, BorderLayout.SOUTH);
@@ -140,15 +140,17 @@ public class ViewLogin extends JPanel {
         c.setForeground(Color.BLACK);
     }
 
-    public String getEmail() { return txtEmail.getText(); }
-    public String getPassword() { return new String(contrasena.getPassword()); }
-    public JButton getBotonIngresar() { return botonIngresar; }
-    public JButton getBotonMostrarTabla() { return botonMostrarTabla; } // 
+    
+    public JTextField getTxtEmail() { return txtEmail; }
+    public JPasswordField getTxtPass() { return txtPass; }
+    public JButton getBtnLogin() { return btnLogin; }
+    public JButton getBtnMostrarTabla() { return botonMostrarTabla; }
     public JLabel getLblRegister() { return lblRegister; }
     public LoginWindow getWindow() { return window; }
 
     public void setEmailError(String error) { lblEmailRequerido.setText(error); }
     public void setPasswordError(String error) { lblContrasenaRequerida.setText(error); }
+    
     public void clearErrors() {
         lblEmailRequerido.setText("");
         lblContrasenaRequerida.setText("");
