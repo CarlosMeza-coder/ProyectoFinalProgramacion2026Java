@@ -1,9 +1,10 @@
 package controladores;
 
-import java.io.IOException;
+import java.sql.SQLException; 
 import java.util.List;
 import javax.swing.JOptionPane;
 import models.Alumno;
+import models.AlumnoTableModel; 
 import repositorio.AlumnoRepository;
 import views.FormularioAlumnoPanel;
 import views.MainWindow;
@@ -14,15 +15,17 @@ public class FormularioAlumnoController {
     private FormularioAlumnoPanel view;
     private MainWindow mainWindow;
     private AlumnoRepository repo;
+    private AlumnoTableModel tableModel; 
     private int indexEdicion;
 
-    public FormularioAlumnoController(FormularioAlumnoPanel view, MainWindow mainWindow) {
-        this(view, mainWindow, -1); 
+    public FormularioAlumnoController(FormularioAlumnoPanel view, MainWindow mainWindow, AlumnoTableModel tableModel) {
+        this(view, mainWindow, tableModel, -1); 
     }
 
-    public FormularioAlumnoController(FormularioAlumnoPanel view, MainWindow mainWindow, int index) {
+    public FormularioAlumnoController(FormularioAlumnoPanel view, MainWindow mainWindow, AlumnoTableModel tableModel, int index) {
         this.view = view;
         this.mainWindow = mainWindow;
+        this.tableModel = tableModel; 
         this.repo = new AlumnoRepository();
         this.indexEdicion = index;
         this.initEvents();
@@ -76,9 +79,15 @@ public class FormularioAlumnoController {
             
             if (indexEdicion == -1) {
                 repo.save(alumnoListo); 
+                
+                tableModel.addRow(alumnoListo); 
+                
                 JOptionPane.showMessageDialog(view, "¡Alumno registrado con éxito!");
             } else {
-                repo.updateAlumno(indexEdicion, alumnoListo); 
+                repo.update(indexEdicion, alumnoListo); 
+                
+                tableModel.updateRow(indexEdicion, alumnoListo); 
+                
                 JOptionPane.showMessageDialog(view, "¡Datos actualizados correctamente!");
             }
             
@@ -87,8 +96,8 @@ public class FormularioAlumnoController {
         } catch (InvalidUser ex) {
             JOptionPane.showMessageDialog(view, ex.getMessage(), "Validación de Datos", JOptionPane.WARNING_MESSAGE);
             
-        } catch (IOException ex) {
-            JOptionPane.showMessageDialog(view, "Error al conectar con la base de datos: " + ex.getMessage(), "Error de Archivo", JOptionPane.ERROR_MESSAGE);
+        } catch (SQLException ex) { 
+            JOptionPane.showMessageDialog(view, "Error al conectar con la base de datos: " + ex.getMessage(), "Error de Base de Datos", JOptionPane.ERROR_MESSAGE);
             
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(view, "Ocurrió un error inesperado: " + ex.getMessage());

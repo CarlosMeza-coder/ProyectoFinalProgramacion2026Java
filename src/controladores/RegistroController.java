@@ -2,7 +2,7 @@ package controladores;
 
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.IOException;
+import java.sql.SQLException;
 import javax.swing.JOptionPane;
 import models.User;
 import repositorio.UserRepository;
@@ -76,7 +76,10 @@ public class RegistroController {
                 throw new InvalidPassword("Por seguridad, la contraseña debe tener al menos 6 caracteres.");
             }
 
-            User nuevoUsuario = new User(email, password);
+            User nuevoUsuario = new User();
+            nuevoUsuario.setEmail(email);
+            nuevoUsuario.setPass(password);
+            
             repo.save(nuevoUsuario);
             
             JOptionPane.showMessageDialog(view, "¡Cuenta de profesor creada con éxito!");
@@ -88,8 +91,8 @@ public class RegistroController {
         } catch (InvalidUser | InvalidPassword ex) {
             JOptionPane.showMessageDialog(view, ex.getMessage(), "Error en el Registro", JOptionPane.WARNING_MESSAGE);
             
-        } catch (IOException ex) {
-            JOptionPane.showMessageDialog(view, "Error al guardar en la base de datos: " + ex.getMessage());
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(view, "Error al guardar en la base de datos: " + ex.getMessage(), "Error de SQL", JOptionPane.ERROR_MESSAGE);
         }
     }
 }

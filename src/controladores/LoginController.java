@@ -1,7 +1,5 @@
 package controladores;
 
-import java.io.IOException;
-import java.util.List;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import javax.swing.JOptionPane;
@@ -9,9 +7,11 @@ import models.User;
 import repositorio.UserRepository;
 import views.ViewLogin;
 import views.ProfesorMainView;
+import views.AdminMainView;  // Asegúrate de crear esta ventana en views
+import views.AlumnoMainView; // Asegúrate de crear esta ventana en views
 import views.FormularioRegistro;
 import excepciones.InvalidUser;
-import excepciones.InvalidPassword;
+import utils.Session;
 
 public class LoginController {
     private ViewLogin view;
@@ -37,11 +37,37 @@ public class LoginController {
                     throw new InvalidUser("El formato del correo electrónico es inválido.");
                 }
 
-                if (validarAcceso(email, pass)) {
+                User usuarioValido = repo.login(email, pass);
+
+                if (usuarioValido != null) {
+                    Session.login(usuarioValido);
+                    
                     view.getWindow().dispose();
-                    ProfesorMainView mainView = new ProfesorMainView();
-                    new ProfesorController(mainView);
-                    mainView.setVisible(true);
+                    
+                    String rol = Session.getRole().toUpperCase();
+                    
+                    switch (rol) {
+                        case "PROFESOR":
+                            ProfesorMainView viewProfe = new ProfesorMainView();
+                            new ProfesorController(viewProfe);
+                            viewProfe.setVisible(true);
+                            break;
+                            
+                        case "ADMINISTRATIVO":
+                            AdminMainView viewAdmin = new AdminMainView();
+                            viewAdmin.setVisible(true);
+                            break;
+                            
+                        case "ALUMNO":
+                            AlumnoMainView viewAlumno = new AlumnoMainView();
+                            viewAlumno.setVisible(true);
+                            break;
+                            
+                        default:
+                            JOptionPane.showMessageDialog(view, "Error: Rol [" + rol + "] no configurado en el sistema.");
+                            break;
+                    }
+                    
                 } else {
                     throw new InvalidUser("Credenciales incorrectas. Verifica tu correo o contraseña.");
                 }
@@ -50,6 +76,7 @@ public class LoginController {
                 JOptionPane.showMessageDialog(view, ex.getMessage(), "Error de Inicio de Sesión", JOptionPane.WARNING_MESSAGE);
             } catch (Exception ex) {
                 JOptionPane.showMessageDialog(view, "Ocurrió un error inesperado: " + ex.getMessage());
+                ex.printStackTrace();
             }
         });
 
@@ -62,16 +89,5 @@ public class LoginController {
                 vistaRegistro.setVisible(true);
             }
         });
-    }
-
-    private boolean validarAcceso(String email, String pass) {
-        try {
-            List<User> usuarios = repo.getUsers();
-            return usuarios.stream().anyMatch(u -> 
-                u.getEmail().equals(email) && u.getPass().equals(pass)
-            );
-        } catch (IOException e) {
-            return false;
-        }
     }
 }

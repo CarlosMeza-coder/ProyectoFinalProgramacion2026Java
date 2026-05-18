@@ -3,7 +3,8 @@ package views;
 import javax.swing.*;
 import controladores.AlumnoController;
 import controladores.FormularioAlumnoController;
-import models.Alumno; // IMPORTANTE: Agregamos el import de Alumno
+import models.Alumno;
+import models.AlumnoTableModel; // NUEVO: Importamos el modelo de la tabla para pasar la estafeta
 
 public class MainWindow extends JFrame {
 
@@ -33,13 +34,12 @@ public class MainWindow extends JFrame {
         repaint();
     }
 
-
-    public void mostrarFormulario() {
+    public void mostrarFormulario(AlumnoTableModel model) {
         getContentPane().removeAll();
         
         formularioPanel = new FormularioAlumnoPanel();
         
-        new FormularioAlumnoController(formularioPanel, this);
+        new FormularioAlumnoController(formularioPanel, this, model);
 
         formularioPanel.getBtnCancelar().addActionListener(e -> mostrarTabla());
 
@@ -49,7 +49,7 @@ public class MainWindow extends JFrame {
         repaint();
     }
 
-    public void mostrarFormularioEdicion(Alumno alumno, int index) {
+    public void mostrarFormularioEdicion(Alumno alumno, int index, AlumnoTableModel model) {
         getContentPane().removeAll();
         
         formularioPanel = new FormularioAlumnoPanel();
@@ -62,7 +62,7 @@ public class MainWindow extends JFrame {
         
         formularioPanel.getBtnGuardar().setText("Actualizar Alumno");
 
-        new FormularioAlumnoController(formularioPanel, this, index);
+        new FormularioAlumnoController(formularioPanel, this, model, index);
 
         formularioPanel.getBtnCancelar().addActionListener(e -> mostrarTabla());
 

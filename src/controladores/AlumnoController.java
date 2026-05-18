@@ -25,11 +25,12 @@ public class AlumnoController {
         this.mainWindow = mainWindow;
         this.repo = new AlumnoRepository();
         this.registerListeners();
+        this.loadAlumnos(); 
     }
 
     private void registerListeners() {
         view.getBtnAdd().addActionListener(e -> {
-            mainWindow.mostrarFormulario();
+            mainWindow.mostrarFormulario(model);
         });
 
         view.getBtnEdit().addActionListener(e -> {
@@ -41,11 +42,12 @@ public class AlumnoController {
                 
                 List<Alumno> alumnos = repo.getAlumnos();
                 Alumno alumnoSeleccionado = alumnos.get(row);
-                mainWindow.mostrarFormularioEdicion(alumnoSeleccionado, row);
+                
+                mainWindow.mostrarFormularioEdicion(alumnoSeleccionado, row, model);
                 
             } catch (InvalidUser ex) {
                 JOptionPane.showMessageDialog(view, ex.getMessage(), "Atención", JOptionPane.WARNING_MESSAGE);
-            } catch (IOException ex) {
+            } catch (Exception ex) {
                 JOptionPane.showMessageDialog(view, "Error al acceder a los datos: " + ex.getMessage());
             }
         });
@@ -92,7 +94,7 @@ public class AlumnoController {
             List<Alumno> alumnos = repo.getAlumnos();
             model = new AlumnoTableModel(alumnos);
             view.setTableModel(model);
-        } catch (IOException e) {
+        } catch (Exception e) {
             JOptionPane.showMessageDialog(view, "Error al cargar la tabla: " + e.getMessage());
         }
     }
@@ -113,14 +115,22 @@ public class AlumnoController {
             );
 
             if (confirm == JOptionPane.YES_OPTION) {
-                repo.delete(row);
-                loadAlumnos();
-                JOptionPane.showMessageDialog(view, "Alumno eliminado correctamente.");
+                List<Alumno> alumnos = repo.getAlumnos();
+                String matricula = alumnos.get(row).getMatricula();
+                
+                boolean eliminado = repo.delete(matricula);
+                
+                if (eliminado) {
+                    model.removeRow(row); 
+                    JOptionPane.showMessageDialog(view, "Alumno eliminado correctamente.");
+                } else {
+                    JOptionPane.showMessageDialog(view, "No se pudo eliminar al alumno de la base de datos.", "Error", JOptionPane.ERROR_MESSAGE);
+                }
             }
             
         } catch (InvalidUser ex) {
             JOptionPane.showMessageDialog(view, ex.getMessage(), "Acción requerida", JOptionPane.WARNING_MESSAGE);
-        } catch (IOException e) {
+        } catch (Exception e) {
             JOptionPane.showMessageDialog(view, "Error técnico al eliminar: " + e.getMessage());
         }
     }

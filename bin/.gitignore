@@ -1,6 +1,8 @@
-/utils/
-/views/
 /controladores/
-/models/
 /repositorio/
+/models/
 /services/
+/views/
+/config/
+/main/
+/utils/

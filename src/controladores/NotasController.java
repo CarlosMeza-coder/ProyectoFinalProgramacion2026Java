@@ -1,6 +1,6 @@
 package controladores;
 
-import java.io.IOException;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -37,6 +37,14 @@ public class NotasController {
         try {
             List<Alumno> todos = repo.getAlumnos();
             
+            for (Alumno alumno : todos) {
+                Calificacion notaBD = repo.getCalificacionPorMateria(alumno.getMatricula(), materia);
+                if (notaBD != null) {
+                    alumno.getCalificaciones().clear();
+                    alumno.getCalificaciones().add(notaBD);
+                }
+            }
+
             alumnosEnTabla = todos.stream()
                 .filter(a -> a.getSemestre().equals(semestre) && a.getGrupo().equals(grupo))
                 .collect(Collectors.toList());
@@ -49,7 +57,7 @@ public class NotasController {
             model.setRowCount(0); 
 
             for (Alumno alumno : alumnosEnTabla) {
-                Object[] row = new Object[6]; 
+                Object[] row = new Object[6];  
                 row[0] = alumno.getMatricula();
                 row[1] = alumno.getNombre();
                 
@@ -60,9 +68,10 @@ public class NotasController {
                         break;
                     }
                 }
+
                 if (notaExistente != null && notaExistente.getParciales() != null) {
                     List<Double> p = notaExistente.getParciales();
-                    row[2] = p.size() > 0 ? p.get(0) : "";
+                    row[2] = p.size() > 0 ? p.get(0) : "";  
                     row[3] = p.size() > 1 ? p.get(1) : "";
                     row[4] = p.size() > 2 ? p.get(2) : "";
                     row[5] = notaExistente.getNotaFinal();
@@ -71,12 +80,11 @@ public class NotasController {
                 }
 
                 model.addRow(row);
-            
             }
         } catch (InvalidUser ex) {
             JOptionPane.showMessageDialog(view, ex.getMessage(), "Búsqueda vacía", JOptionPane.INFORMATION_MESSAGE);
-        } catch (IOException ex) {
-             JOptionPane.showMessageDialog(view, "Error de lectura: " + ex.getMessage());
+        } catch (SQLException ex) {
+             JOptionPane.showMessageDialog(view, "Error al cargar desde MySQL: " + ex.getMessage(), "Error SQL", JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -88,53 +96,30 @@ public class NotasController {
 
             String materiaSeleccionada = view.getMateria();
             DefaultTableModel model = view.getTableModel();
-            List<Alumno> todosLosAlumnos = repo.getAlumnos();
 
             for (int i = 0; i < model.getRowCount(); i++) {
                 String matriculaTabla = model.getValueAt(i, 0).toString();
                 String nombreAlumno = model.getValueAt(i, 1).toString();
 
-                Alumno alumnoReal = todosLosAlumnos.stream()
-                    .filter(a -> a.getMatricula().equals(matriculaTabla))
-                    .findFirst().orElse(null);
-
-                if (alumnoReal != null) {
-                    List<Double> notasParciales = new ArrayList<>();                   
-                 
-                    for (int col = 2; col <= 4; col++) { 
-                        Object valorCelda = model.getValueAt(i, col);
-                        double nota = validarNota(valorCelda, "Parcial " + (col-1), nombreAlumno);
-                        notasParciales.add(nota);
-                    }
-
-                    Object valorFinal = model.getValueAt(i, 5);
-                    double notaFinal = validarNota(valorFinal, "Final", nombreAlumno);
-
-                    Calificacion califExistente = null;
-                    for (Calificacion c : alumnoReal.getCalificaciones()) {
-                        if (c.getMateria().equals(materiaSeleccionada)) {
-                            califExistente = c;
-                            break;
-                        }
-                    }
-
-                    if (califExistente != null) {
-                        califExistente.setParciales(notasParciales);
-                        califExistente.setNotaFinal(notaFinal);
-                    } else {
-                        Calificacion nuevaCalif = new Calificacion(materiaSeleccionada, notasParciales, notaFinal);
-                        alumnoReal.getCalificaciones().add(nuevaCalif);
-                    }
+                List<Double> streamNotas = new ArrayList<>();                    
+                for (int col = 2; col <= 4; col++) { 
+                    Object valorCelda = model.getValueAt(i, col);
+                    double nota = validarNota(valorCelda, "Parcial " + (col - 1), nombreAlumno);
+                    streamNotas.add(nota);
                 }
+
+                Object valorFinal = model.getValueAt(i, 5);
+                double notaFinal = validarNota(valorFinal, "Final", nombreAlumno);
+
+                repo.guardarOActualizarNotas(matriculaTabla, materiaSeleccionada, streamNotas, notaFinal);
             }
 
-            repo.updateAll(todosLosAlumnos);
-            JOptionPane.showMessageDialog(view, "Calificaciones guardadas con exito");
+            JOptionPane.showMessageDialog(view, "Calificaciones guardadas con éxito en la base de datos.");
 
         } catch (InvalidUser ex) {
             JOptionPane.showMessageDialog(view, ex.getMessage(), "Error de Calificación", JOptionPane.ERROR_MESSAGE);
-        } catch (IOException ex) {
-            JOptionPane.showMessageDialog(view, "Error al guardar: " + ex.getMessage());
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(view, "Error de persistencia en MySQL: " + ex.getMessage(), "Error SQL", JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -142,14 +127,11 @@ public class NotasController {
         if (valor == null || valor.toString().trim().isEmpty()) {
             return 0.0; 
         }
-        
         try {
             double nota = Double.parseDouble(valor.toString());
-            
             if (nota < 0 || nota > 10) {
                 throw new InvalidUser("La nota '" + tipoNota + "' de " + nombreAlumno + " debe estar entre 0 y 10.");
             }
-            
             return nota;
         } catch (NumberFormatException e) {
             throw new InvalidUser("Error en " + nombreAlumno + ": '" + valor + "' no es un número válido para " + tipoNota);

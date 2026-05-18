@@ -9,9 +9,6 @@ public class UserFormDialog extends JDialog {
 
     private JTextField txtEmail;
     private JPasswordField txtPass;
-    private JComboBox<String> cboPais;
-    private JTextField txtLenguaje;
-    private JComboBox<String> cboGenero;
     private JButton btnSave, btnCancel;
 
     private User user;
@@ -22,7 +19,7 @@ public class UserFormDialog extends JDialog {
         this.user = user;
 
         setTitle(user == null ? "Agregar usuario" : "Editar usuario");
-        setSize(350, 450);
+        setSize(350, 300); 
         setLocationRelativeTo(parent);
         setLayout(new BorderLayout());
         setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
@@ -41,14 +38,6 @@ public class UserFormDialog extends JDialog {
 
         txtEmail = new JTextField();
         txtPass = new JPasswordField();
-        
-        String[] paises = {"México", "España", "Argentina", "Colombia"};
-        cboPais = new JComboBox<>(paises);
-        
-        txtLenguaje = new JTextField();
-        
-        String[] generos = {"hombre", "mujer", "otro"};
-        cboGenero = new JComboBox<>(generos);
 
         panelForm.add(new JLabel("Email:"));
         panelForm.add(txtEmail);
@@ -57,17 +46,6 @@ public class UserFormDialog extends JDialog {
         panelForm.add(new JLabel("Contraseña:"));
         panelForm.add(txtPass);
         panelForm.add(Box.createRigidArea(new Dimension(0, 10)));
-        
-        panelForm.add(new JLabel("País:"));
-        panelForm.add(cboPais);
-        panelForm.add(Box.createRigidArea(new Dimension(0, 10)));
-        
-        panelForm.add(new JLabel("Lenguaje principal:"));
-        panelForm.add(txtLenguaje);
-        panelForm.add(Box.createRigidArea(new Dimension(0, 10)));
-        
-        panelForm.add(new JLabel("Género:"));
-        panelForm.add(cboGenero);
 
         add(panelForm, BorderLayout.CENTER);
 
@@ -88,22 +66,27 @@ public class UserFormDialog extends JDialog {
     private void loadData() {
         if (user != null) {
             txtEmail.setText(user.getEmail());
-            txtPass.setText(user.getPass());          
+            txtPass.setText(user.getPass());           
         }
     }
 
     private void save() {
         String email = txtEmail.getText();
         String pass = new String(txtPass.getPassword());
-        String pais = (String) cboPais.getSelectedItem();
-        String lenguaje = txtLenguaje.getText();
-        String genero = (String) cboGenero.getSelectedItem();
+
+
+        if (email.isEmpty() || pass.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Por favor llena todos los campos");
+            return;
+        }
 
         if (user == null) {
-            user = new User(email, pass);
+            user = new User();
+            user.setEmail(email);
+            user.setPass(pass);
         } else {
             user.setEmail(email);
-            user.setPass(pass);           
+            user.setPass(pass);            
         }
 
         saved = true;
