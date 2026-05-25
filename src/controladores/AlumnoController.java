@@ -1,137 +1,74 @@
 package controladores;
 
-import java.io.IOException;
+import models.Calificacion;
 import java.util.List;
 import javax.swing.JOptionPane;
-import javax.swing.JFileChooser;
-import java.io.File;
-import models.Alumno;
-import models.AlumnoTableModel;
 import repositorio.AlumnoRepository;
-import views.UsersView;
-import views.MainWindow;
-import services.PDFExporter;
-import utils.Config;
-import excepciones.InvalidUser;
+import utils.Session;
+import views.AlumnoMainView;
 
 public class AlumnoController {
-    private UsersView view;
-    private AlumnoRepository repo;
-    private AlumnoTableModel model;
-    private MainWindow mainWindow;
 
-    public AlumnoController(UsersView view, MainWindow mainWindow) {
-        this.view = view;
-        this.mainWindow = mainWindow;
-        this.repo = new AlumnoRepository();
-        this.registerListeners();
-        this.loadAlumnos(); 
+    private final AlumnoMainView vista;
+    private final AlumnoRepository repo;
+
+    public AlumnoController(AlumnoMainView vista) {
+        this.vista = vista;
+        this.repo  = new AlumnoRepository();
+
+        cargarCalificaciones();
+        initListeners();
+
+        this.vista.setVisible(true);
     }
 
-    private void registerListeners() {
-        view.getBtnAdd().addActionListener(e -> {
-            mainWindow.mostrarFormulario(model);
-        });
+    private void cargarCalificaciones() {
+        String matricula = Session.getMatriculaAlumno();
 
-        view.getBtnEdit().addActionListener(e -> {
-            try {
-                int row = view.getTable().getSelectedRow();
-                if (row == -1) {
-                    throw new InvalidUser("Por favor, selecciona un alumno de la tabla para poder editar sus datos.");
-                }
-                
-                List<Alumno> alumnos = repo.getAlumnos();
-                Alumno alumnoSeleccionado = alumnos.get(row);
-                
-                mainWindow.mostrarFormularioEdicion(alumnoSeleccionado, row, model);
-                
-            } catch (InvalidUser ex) {
-                JOptionPane.showMessageDialog(view, ex.getMessage(), "Atención", JOptionPane.WARNING_MESSAGE);
-            } catch (Exception ex) {
-                JOptionPane.showMessageDialog(view, "Error al acceder a los datos: " + ex.getMessage());
-            }
-        });
+        if (matricula == null || matricula.isEmpty()) {
+            JOptionPane.showMessageDialog(vista,
+                "No hay sesión activa.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
 
-        view.getBtnDelete().addActionListener(e -> deleteAlumno());
-
-        view.getBtnPDF().addActionListener(e -> {
-            try {
-                List<Alumno> alumnos = repo.getAlumnos();
-                
-                if (alumnos.isEmpty()) {
-                    throw new InvalidUser("No hay datos en la lista. No se puede generar un PDF vacío.");
-                }
-
-                JFileChooser fileChooser = new JFileChooser();
-                fileChooser.setDialogTitle("Guardar Reporte de Alumnos");
-
-                String ultimaRuta = Config.get("users.export.pdf", System.getProperty("user.home"));
-                fileChooser.setCurrentDirectory(new File(ultimaRuta));
-                fileChooser.setSelectedFile(new File("ReporteAlumnos.pdf"));
-
-                int seleccion = fileChooser.showSaveDialog(view);
-
-                if (seleccion == JFileChooser.APPROVE_OPTION) {
-                    File archivoElegido = fileChooser.getSelectedFile();
-                    String dest = archivoElegido.getAbsolutePath();
-
-                    PDFExporter.exportAlumnos(alumnos, dest);
-                    Config.set("users.export.pdf", archivoElegido.getParent());
-
-                    JOptionPane.showMessageDialog(view, "¡Reporte generado con éxito!");
-                }
-
-            } catch (InvalidUser ex) {
-                JOptionPane.showMessageDialog(view, ex.getMessage(), "Error de Exportación", JOptionPane.ERROR_MESSAGE);
-            } catch (IOException ex) {
-                JOptionPane.showMessageDialog(view, "Error al generar el PDF: " + ex.getMessage());
-            }
-        });
-    }
-
-    public void loadAlumnos() {
         try {
-            List<Alumno> alumnos = repo.getAlumnos();
-            model = new AlumnoTableModel(alumnos);
-            view.setTableModel(model);
+            List<Calificacion> misNotas = repo.getCalificacionesDelAlumno(matricula);
+
+            vista.getModeloCalificaciones().setRowCount(0);
+
+            if (misNotas.isEmpty()) {
+                JOptionPane.showMessageDialog(vista,
+                    "Aún no tienes calificaciones registradas.",
+                    "Sin datos", JOptionPane.INFORMATION_MESSAGE);
+                return;
+            }
+
+            for (Calificacion c : misNotas) {
+                Object p1 = c.getParciales().get(0) == 0.0 ? "-" : c.getParciales().get(0);
+                Object p2 = c.getParciales().get(1) == 0.0 ? "-" : c.getParciales().get(1);
+                Object p3 = c.getParciales().get(2) == 0.0 ? "-" : c.getParciales().get(2);
+                Object nf = c.getNotaFinal()        == 0.0 ? "-" : c.getNotaFinal();
+
+                vista.getModeloCalificaciones().addRow(new Object[]{
+                    c.getMateria(),
+                    c.getNombreProfesor(),
+                    p1, p2, p3, nf
+                });
+            }
+
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(view, "Error al cargar la tabla: " + e.getMessage());
+            JOptionPane.showMessageDialog(vista,
+                "Error al cargar calificaciones: " + e.getMessage(),
+                "Error", JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
         }
     }
 
-    private void deleteAlumno() {
-        try {
-            int row = view.getTable().getSelectedRow();
-            if (row == -1) {
-                throw new InvalidUser("Selecciona un alumno de la tabla para eliminarlo.");
-            }
-
-            int confirm = JOptionPane.showConfirmDialog(
-                view, 
-                "¿Estás seguro de que deseas eliminar permanentemente a este alumno?", 
-                "Confirmar eliminación", 
-                JOptionPane.YES_NO_OPTION,
-                JOptionPane.WARNING_MESSAGE
-            );
-
-            if (confirm == JOptionPane.YES_OPTION) {
-                List<Alumno> alumnos = repo.getAlumnos();
-                String matricula = alumnos.get(row).getMatricula();
-                
-                boolean eliminado = repo.delete(matricula);
-                
-                if (eliminado) {
-                    model.removeRow(row); 
-                    JOptionPane.showMessageDialog(view, "Alumno eliminado correctamente.");
-                } else {
-                    JOptionPane.showMessageDialog(view, "No se pudo eliminar al alumno de la base de datos.", "Error", JOptionPane.ERROR_MESSAGE);
-                }
-            }
-            
-        } catch (InvalidUser ex) {
-            JOptionPane.showMessageDialog(view, ex.getMessage(), "Acción requerida", JOptionPane.WARNING_MESSAGE);
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(view, "Error técnico al eliminar: " + e.getMessage());
-        }
+    private void initListeners() {
+        vista.getBtnLogout().addActionListener(e -> {
+            Session.logout();
+            vista.dispose();
+            new views.LoginWindow().setVisible(true);
+        });
     }
 }

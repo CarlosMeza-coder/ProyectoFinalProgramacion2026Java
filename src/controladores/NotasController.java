@@ -2,7 +2,9 @@ package controladores;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
@@ -11,6 +13,7 @@ import models.Calificacion;
 import repositorio.AlumnoRepository;
 import views.NotasView;
 import excepciones.InvalidUser;
+import utils.Session;
 
 public class NotasController {
     private NotasView view;
@@ -21,24 +24,70 @@ public class NotasController {
         this.view = view;
         this.repo = new AlumnoRepository();
         this.alumnosEnTabla = new ArrayList<>();
+        cargarFiltros();   
         this.initEvents();
     }
 
+    private void cargarFiltros() {
+        try {
+            int idProfesor = Session.getProfesorId();
+
+            List<String[]> gruposBD = repo.getGruposDisponibles();
+            Set<String> semestres = new LinkedHashSet<>();
+            Set<String> gruposSet = new LinkedHashSet<>();
+            for (String[] g : gruposBD) {
+                semestres.add(g[0]); 
+                gruposSet.add(g[1]); 
+            }
+            
+            view.getCbSemestre().removeAllItems();
+            view.getCbGrupo().removeAllItems();
+            
+            String[] ordenIdeal = {"Primero", "Segundo", "Tercero", "Cuarto", "Quinto", "Sexto", "Séptimo", "Octavo"};
+            
+            for (String semestreIdeal : ordenIdeal) {
+
+                if (semestres.contains(semestreIdeal)) {
+                    view.getCbSemestre().addItem(semestreIdeal);
+                }
+            }
+
+            List<String> listaGrupos = new ArrayList<>(gruposSet);
+            java.util.Collections.sort(listaGrupos);
+            for (String g : listaGrupos) view.getCbGrupo().addItem(g);
+
+            List<String> materias = repo.getMateriasDelProfesor(idProfesor);
+            view.getCbMateria().removeAllItems();
+            
+            List<String> listaMaterias = new ArrayList<>(materias);
+            java.util.Collections.sort(listaMaterias);
+            for (String m : listaMaterias) view.getCbMateria().addItem(m);
+
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(view, "Error cargando filtros: " + ex.getMessage());
+        }
+    }
+
+    
     private void initEvents() {
         view.getBtnCargar().addActionListener(e -> cargarAlumnos());
         view.getBtnGuardar().addActionListener(e -> guardarCalificaciones());
     }
 
+
     private void cargarAlumnos() {
-        String semestre = view.getSemestre();
-        String grupo = view.getGrupo();
-        String materia = view.getMateria();
+        if (view.getCbSemestre().getSelectedItem() == null) return;
+        
+        String semestre = view.getCbSemestre().getSelectedItem().toString();
+        String grupo    = view.getCbGrupo().getSelectedItem().toString();
+        String materia  = view.getCbMateria().getSelectedItem().toString();
+        int idProfesorLogueado = Session.getProfesorId();
 
         try {
             List<Alumno> todos = repo.getAlumnos();
             
             for (Alumno alumno : todos) {
-                Calificacion notaBD = repo.getCalificacionPorMateria(alumno.getMatricula(), materia);
+                Calificacion notaBD = repo.getCalificacionPorMateria(alumno.getMatricula(), materia, idProfesorLogueado);
                 if (notaBD != null) {
                     alumno.getCalificaciones().clear();
                     alumno.getCalificaciones().add(notaBD);
@@ -50,14 +99,14 @@ public class NotasController {
                 .collect(Collectors.toList());
 
             if (alumnosEnTabla.isEmpty()) {
-                throw new InvalidUser("No se encontraron alumnos en " + semestre + " grupo " + grupo);
+                throw new InvalidUser("No se encontraron alumnos en " + semestre + " grupo " + grupo + " para esta materia.");
             }
 
             DefaultTableModel model = view.getTableModel();
             model.setRowCount(0); 
 
             for (Alumno alumno : alumnosEnTabla) {
-                Object[] row = new Object[6];  
+                Object[] row = new Object[6];
                 row[0] = alumno.getMatricula();
                 row[1] = alumno.getNombre();
                 
@@ -71,7 +120,7 @@ public class NotasController {
 
                 if (notaExistente != null && notaExistente.getParciales() != null) {
                     List<Double> p = notaExistente.getParciales();
-                    row[2] = p.size() > 0 ? p.get(0) : "";  
+                    row[2] = p.size() > 0 ? p.get(0) : "";
                     row[3] = p.size() > 1 ? p.get(1) : "";
                     row[4] = p.size() > 2 ? p.get(2) : "";
                     row[5] = notaExistente.getNotaFinal();
@@ -84,22 +133,24 @@ public class NotasController {
         } catch (InvalidUser ex) {
             JOptionPane.showMessageDialog(view, ex.getMessage(), "Búsqueda vacía", JOptionPane.INFORMATION_MESSAGE);
         } catch (SQLException ex) {
-             JOptionPane.showMessageDialog(view, "Error al cargar desde MySQL: " + ex.getMessage(), "Error SQL", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(view, "Error al cargar desde MySQL: " + ex.getMessage(), "Error SQL", JOptionPane.ERROR_MESSAGE);
         }
     }
 
     private void guardarCalificaciones() {
+        int idProfesorLogueado = Session.getProfesorId();
+        
         try {
             if (alumnosEnTabla.isEmpty()) {
                 throw new InvalidUser("No hay alumnos en la tabla para calificar.");
             }
 
-            String materiaSeleccionada = view.getMateria();
+            String materiaSeleccionada = view.getCbMateria().getSelectedItem().toString();
             DefaultTableModel model = view.getTableModel();
 
             for (int i = 0; i < model.getRowCount(); i++) {
                 String matriculaTabla = model.getValueAt(i, 0).toString();
-                String nombreAlumno = model.getValueAt(i, 1).toString();
+                String nombreAlumno   = model.getValueAt(i, 1).toString();
 
                 List<Double> streamNotas = new ArrayList<>();                    
                 for (int col = 2; col <= 4; col++) { 
@@ -111,15 +162,15 @@ public class NotasController {
                 Object valorFinal = model.getValueAt(i, 5);
                 double notaFinal = validarNota(valorFinal, "Final", nombreAlumno);
 
-                repo.guardarOActualizarNotas(matriculaTabla, materiaSeleccionada, streamNotas, notaFinal);
+                repo.guardarOActualizarNotas(matriculaTabla, materiaSeleccionada, streamNotas, notaFinal, idProfesorLogueado);
             }
 
-            JOptionPane.showMessageDialog(view, "Calificaciones guardadas con éxito en la base de datos.");
+            JOptionPane.showMessageDialog(view, "¡Calificaciones guardadas con éxito!");
 
         } catch (InvalidUser ex) {
             JOptionPane.showMessageDialog(view, ex.getMessage(), "Error de Calificación", JOptionPane.ERROR_MESSAGE);
         } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(view, "Error de persistencia en MySQL: " + ex.getMessage(), "Error SQL", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(view, "Error de persistencia: " + ex.getMessage(), "Error SQL", JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -134,7 +185,7 @@ public class NotasController {
             }
             return nota;
         } catch (NumberFormatException e) {
-            throw new InvalidUser("Error en " + nombreAlumno + ": '" + valor + "' no es un número válido para " + tipoNota);
+            throw new InvalidUser("Error en " + nombreAlumno + ": '" + valor + "' no es un número válido.");
         }
     }
 }

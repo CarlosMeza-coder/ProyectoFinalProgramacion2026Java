@@ -24,8 +24,6 @@ public class ViewLogin extends JPanel {
     private JLabel lblEmailRequerido;
     private JLabel lblContrasenaRequerida;
     private JButton btnLogin; 
-    private JButton botonMostrarTabla; 
-    private JLabel lblRegister;
     
     Color defaultButtonColor;
 
@@ -71,21 +69,6 @@ public class ViewLogin extends JPanel {
         lblContrasenaRequerida.setFont(new Font("Arial", Font.PLAIN, 12));
         form.addItem(lblContrasenaRequerida);
 
-        lblRegister = new JLabel("¿No tienes cuenta? Regístrate aquí");
-        lblRegister.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        lblRegister.setFont(new Font("Arial", Font.BOLD, 14));
-        
-        lblRegister.addMouseListener(new MouseAdapter() {
-            public void mouseEntered(MouseEvent e) {
-                lblRegister.setForeground(Color.GREEN);
-            }
-            public void mouseExited(MouseEvent e) {
-                lblRegister.setForeground(Color.BLACK);
-            }
-        });
-        
-        form.addItem(lblRegister);
-
         container.addItem(form, BorderLayout.CENTER);
 
         FlowPanel buttonContainer = new FlowPanel(FlowLayout.LEFT);
@@ -108,24 +91,7 @@ public class ViewLogin extends JPanel {
             }
         });
 
-        botonMostrarTabla = new JButton("Mostrar tabla");
-        botonMostrarTabla.setBackground(new Color(200, 200, 200)); 
-        botonMostrarTabla.setFont(new Font("Arial", Font.BOLD, 14));
-        botonMostrarTabla.setPreferredSize(new Dimension(130, 40));
-        
-        botonMostrarTabla.addMouseListener(new MouseAdapter() {
-            public void mouseEntered(MouseEvent e) {
-                botonMostrarTabla.setBackground(Color.DARK_GRAY);
-                botonMostrarTabla.setForeground(Color.WHITE);
-            }
-            public void mouseExited(MouseEvent e) {
-                botonMostrarTabla.setBackground(new Color(200, 200, 200));
-                botonMostrarTabla.setForeground(Color.BLACK);
-            }
-        });
-        
         buttonContainer.addItem(btnLogin);
-        buttonContainer.addItem(botonMostrarTabla); 
         
         container.addItem(buttonContainer, BorderLayout.SOUTH);
     }
@@ -144,8 +110,6 @@ public class ViewLogin extends JPanel {
     public JTextField getTxtEmail() { return txtEmail; }
     public JPasswordField getTxtPass() { return txtPass; }
     public JButton getBtnLogin() { return btnLogin; }
-    public JButton getBtnMostrarTabla() { return botonMostrarTabla; }
-    public JLabel getLblRegister() { return lblRegister; }
     public LoginWindow getWindow() { return window; }
 
     public void setEmailError(String error) { lblEmailRequerido.setText(error); }

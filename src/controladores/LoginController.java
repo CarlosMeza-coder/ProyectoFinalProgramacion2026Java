@@ -1,15 +1,12 @@
 package controladores;
 
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import javax.swing.JOptionPane;
 import models.User;
 import repositorio.UserRepository;
 import views.ViewLogin;
 import views.ProfesorMainView;
-import views.AdminMainView;  // Asegúrate de crear esta ventana en views
-import views.AlumnoMainView; // Asegúrate de crear esta ventana en views
-import views.FormularioRegistro;
+import views.AdminMainView;  
+import views.AlumnoMainView; 
 import excepciones.InvalidUser;
 import utils.Session;
 
@@ -41,7 +38,6 @@ public class LoginController {
 
                 if (usuarioValido != null) {
                     Session.login(usuarioValido);
-                    
                     view.getWindow().dispose();
                     
                     String rol = Session.getRole().toUpperCase();
@@ -50,21 +46,20 @@ public class LoginController {
                         case "PROFESOR":
                             ProfesorMainView viewProfe = new ProfesorMainView();
                             new ProfesorController(viewProfe);
-                            viewProfe.setVisible(true);
                             break;
                             
                         case "ADMINISTRATIVO":
                             AdminMainView viewAdmin = new AdminMainView();
-                            viewAdmin.setVisible(true);
+                            new AdminController(viewAdmin); 
                             break;
                             
                         case "ALUMNO":
                             AlumnoMainView viewAlumno = new AlumnoMainView();
-                            viewAlumno.setVisible(true);
+                            new AlumnoController(viewAlumno); 
                             break;
                             
                         default:
-                            JOptionPane.showMessageDialog(view, "Error: Rol [" + rol + "] no configurado en el sistema.");
+                            JOptionPane.showMessageDialog(view, "Error: Rol [" + rol + "] no configurado.");
                             break;
                     }
                     
@@ -79,15 +74,6 @@ public class LoginController {
                 ex.printStackTrace();
             }
         });
-
-        view.getLblRegister().addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                view.getWindow().dispose();
-                FormularioRegistro vistaRegistro = new FormularioRegistro();
-                new RegistroController(vistaRegistro);
-                vistaRegistro.setVisible(true);
-            }
-        });
+        
     }
 }

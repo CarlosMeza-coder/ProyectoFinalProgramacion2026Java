@@ -5,6 +5,7 @@ import java.util.List;
 
 public class Calificacion {
     private String materia;
+    private String nombreProfesor;
     private List<Double> parciales;
     private double notaFinal;
 
@@ -26,4 +27,12 @@ public class Calificacion {
 
     public double getNotaFinal() { return notaFinal; }
     public void setNotaFinal(double notaFinal) { this.notaFinal = notaFinal; }
+    
+    public String getNombreProfesor() {
+        return nombreProfesor;
+    }
+
+    public void setNombreProfesor(String nombreProfesor) {
+        this.nombreProfesor = nombreProfesor;
+    }
 }

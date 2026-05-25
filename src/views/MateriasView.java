@@ -25,9 +25,7 @@ public class MateriasView extends JPanel {
         styleTable();
         
         add(new JScrollPane(table), BorderLayout.CENTER);
-
-        tableModel.addRow(new Object[]{"PROG3", "Programación III", "3er Semestre", "A"});
-        tableModel.addRow(new Object[]{"BD1", "Bases de Datos I", "3er Semestre", "B"});
+        
     }
 
     private void styleTable() {
@@ -49,4 +47,6 @@ public class MateriasView extends JPanel {
             }
         });
     }
+
+    public DefaultTableModel getTableModel() { return tableModel; }
 }

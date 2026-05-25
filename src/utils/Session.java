@@ -23,6 +23,15 @@ public class Session {
     }
     
     public static String getRole() {
-        return currentUser != null ? currentUser.getRol() : null;
+        return currentUser != null ? currentUser.getRol().toUpperCase() : null;
+    }
+    
+    
+    public static int getProfesorId() {
+        return (currentUser != null) ? currentUser.getIdProfesor() : -1;
+    }
+    
+    public static String getMatriculaAlumno() {
+        return (currentUser != null) ? currentUser.getMatricula() : null;
     }
 }

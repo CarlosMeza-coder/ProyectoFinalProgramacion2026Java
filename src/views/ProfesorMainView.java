@@ -5,7 +5,7 @@ import javax.swing.*;
 import utils.AppFonts;
 
 public class ProfesorMainView extends JFrame {
-    private JButton btnAlumnos, btnMaterias, btnNotas, btnReportes, btnLogout, btnTema;
+    private JButton btnMaterias, btnNotas, btnLogout, btnTema;
 
     public ProfesorMainView() {
         setTitle("Sistema de Calificaciones - Panel Docente");
@@ -37,19 +37,15 @@ public class ProfesorMainView extends JFrame {
         header.add(lblTitle, BorderLayout.WEST);
         header.add(panelBotonesDerecha, BorderLayout.EAST); 
 
-        JPanel panelButtons = new JPanel(new GridLayout(2, 2, 20, 20)); 
-        panelButtons.setBorder(BorderFactory.createEmptyBorder(40, 40, 40, 40));
+        JPanel panelButtons = new JPanel(new GridLayout(1, 2, 40, 40)); 
+        panelButtons.setBorder(BorderFactory.createEmptyBorder(150, 80, 150, 80));
         panelButtons.setBackground(Color.WHITE);
 
-        btnAlumnos = createMenuButton("Gestión de Alumnos");
         btnMaterias = createMenuButton("Materias que Imparto");
         btnNotas = createMenuButton("Captura de Notas");
-        btnReportes = createMenuButton("Generar Reportes (PDF)");
 
-        panelButtons.add(btnAlumnos);
         panelButtons.add(btnMaterias);
         panelButtons.add(btnNotas);
-        panelButtons.add(btnReportes);
 
         add(header, BorderLayout.NORTH);
         add(panelButtons, BorderLayout.CENTER);
@@ -75,10 +71,8 @@ public class ProfesorMainView extends JFrame {
         return btn;
     }
 
-    public JButton getBtnAlumnos() { return btnAlumnos; }
     public JButton getBtnMaterias() { return btnMaterias; }
     public JButton getBtnNotas() { return btnNotas; }
-    public JButton getBtnReportes() { return btnReportes; }
     public JButton getBtnLogout() { return btnLogout; }
     public JButton getBtnTema() { return btnTema; } 
 }
