@@ -5,7 +5,6 @@ import javax.swing.*;
 import javax.swing.table.*;
 
 import models.AlumnoTableModel;
-import models.UserTableModel; 
 import utils.AppFonts;
 
 public class UsersView extends JPanel {
