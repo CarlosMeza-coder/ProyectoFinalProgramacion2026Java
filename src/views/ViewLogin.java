@@ -24,6 +24,7 @@ public class ViewLogin extends JPanel {
     private JLabel lblEmailRequerido;
     private JLabel lblContrasenaRequerida;
     private JButton btnLogin; 
+    private JButton btnLogin2; 
     
     Color defaultButtonColor;
 
