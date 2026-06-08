@@ -9,9 +9,10 @@ import models.Calificacion;
 
 public class AlumnoRepository {
 
+    // Retorna la lista de todos los alumnos desde la vista de la BD
     public List<Alumno> getAlumnos() {
         List<Alumno> lista = new ArrayList<>();
-        String sql = "SELECT matricula, nombre, email, semestre, grupo FROM vista_lista_alumnos";
+        String sql = "SELECT matricula, nombre, apellido, email, semestre, grupo FROM vista_lista_alumnos";
         
         try (Connection connection = DatabaseConnection.getConnection();
              Statement st = connection.createStatement();
@@ -25,6 +26,7 @@ public class AlumnoRepository {
                     rs.getString("semestre"),
                     rs.getString("grupo")
                 );
+                alumno.setApellido(rs.getString("apellido"));
                 lista.add(alumno);
             }
         } catch (SQLException ex) {
@@ -33,6 +35,7 @@ public class AlumnoRepository {
         return lista;
     }
 
+    // Registra un alumno nuevo junto con su usuario de login
     public void save(Alumno alumno) throws SQLException {
         Connection conn = null;
         PreparedStatement stmtGrupo = null;
@@ -43,8 +46,9 @@ public class AlumnoRepository {
         
         try {
             conn = DatabaseConnection.getConnection();
-            conn.setAutoCommit(false);
+            conn.setAutoCommit(false); // inicia transacción
 
+            // Busca el id del grupo por semestre y nombre
             int idGrupo = -1;
             String sqlGrupo = "SELECT id_grupo FROM grupos WHERE semestre = ? AND nombre_grupo = ?";
             stmtGrupo = conn.prepareStatement(sqlGrupo);
@@ -58,31 +62,36 @@ public class AlumnoRepository {
                 throw new SQLException("El grupo '" + alumno.getSemestre() + " " + alumno.getGrupo() + "' no existe. Créalo primero.");
             }
 
+            // Inserta el usuario con contraseña bcrypt por defecto y rol alumno
             String sqlUser = "INSERT INTO usuarios (email, password, id_rol) VALUES (?, ?, ?)";
             stmtUser = conn.prepareStatement(sqlUser, Statement.RETURN_GENERATED_KEYS);
             stmtUser.setString(1, alumno.getEmail());
-            stmtUser.setString(2, "$2a$10$vH5CCMaZHecGcg.vCbDssOCHtGhV.Rp/1K7WA2fD0A23qw.fG88QW");
-            stmtUser.setInt(3, 3); 
+            stmtUser.setString(2, "$2a$10$6B76N88/.MLWXQoAiVQ2X.ewkqUk3Ioafk7LRfxtDzGtOm9vIg7Bq");
+            stmtUser.setInt(3, 3);
             stmtUser.executeUpdate();
 
+            // Obtiene el id generado automáticamente por la BD
             rsUser = stmtUser.getGeneratedKeys();
             int idUsuario = rsUser.next() ? rsUser.getInt(1) : -1;
 
-            String sqlAlumno = "INSERT INTO alumnos (matricula, nombre, id_grupo, id_usuario) VALUES (?, ?, ?, ?)";
+            // Inserta el alumno vinculado al grupo y usuario
+            String sqlAlumno = "INSERT INTO alumnos (matricula, nombre, apellido, id_grupo, id_usuario) VALUES (?, ?, ?, ?, ?)";
             stmtAlumno = conn.prepareStatement(sqlAlumno);
             stmtAlumno.setString(1, alumno.getMatricula());
             stmtAlumno.setString(2, alumno.getNombre());
-            stmtAlumno.setInt(3, idGrupo);
-            stmtAlumno.setInt(4, idUsuario);
+            stmtAlumno.setString(3, alumno.getApellido());
+            stmtAlumno.setInt(4, idGrupo);
+            stmtAlumno.setInt(5, idUsuario);
             stmtAlumno.executeUpdate();
 
-            conn.commit(); 
+            conn.commit();
         } catch (SQLException ex) {
             if (conn != null) {
                 try { conn.rollback(); } catch (SQLException e) { }
             }
-            throw ex; 
+            throw ex;
         } finally {
+            // Cierra todos los recursos
             if (rsGrupo != null) rsGrupo.close();
             if (rsUser != null) rsUser.close();
             if (stmtGrupo != null) stmtGrupo.close();
@@ -92,12 +101,14 @@ public class AlumnoRepository {
         }
     }
 
+    // Actualiza datos del alumno y su email en la tabla usuarios
     public boolean update(Alumno alumno) {
         Connection conn = null;
         try {
             conn = DatabaseConnection.getConnection();
             conn.setAutoCommit(false);
 
+            // Busca el id del grupo nuevo
             int idGrupo = -1;
             String sqlGrupo = "SELECT id_grupo FROM grupos WHERE semestre = ? AND nombre_grupo = ?";
             try (PreparedStatement psGrupo = conn.prepareStatement(sqlGrupo)) {
@@ -108,6 +119,7 @@ public class AlumnoRepository {
                 else throw new SQLException("El grupo especificado no existe.");
             }
 
+            // Obtiene el id_usuario del alumno
             int idUsuario = -1;
             String sqlIdUser = "SELECT id_usuario FROM alumnos WHERE matricula = ?";
             try (PreparedStatement psIdUser = conn.prepareStatement(sqlIdUser)) {
@@ -116,14 +128,17 @@ public class AlumnoRepository {
                 if (rsId.next()) idUsuario = rsId.getInt("id_usuario");
             }
 
-            String sqlUpdateAl = "UPDATE alumnos SET nombre = ?, id_grupo = ? WHERE matricula = ?";
+            // Actualiza nombre, apellido y grupo
+            String sqlUpdateAl = "UPDATE alumnos SET nombre = ?, apellido = ?, id_grupo = ? WHERE matricula = ?";
             try (PreparedStatement psUpdateAl = conn.prepareStatement(sqlUpdateAl)) {
                 psUpdateAl.setString(1, alumno.getNombre());
-                psUpdateAl.setInt(2, idGrupo);
-                psUpdateAl.setString(3, alumno.getMatricula());
+                psUpdateAl.setString(2, alumno.getApellido());
+                psUpdateAl.setInt(3, idGrupo);
+                psUpdateAl.setString(4, alumno.getMatricula());
                 psUpdateAl.executeUpdate();
             }
 
+            // Actualiza el email en usuarios
             if (idUsuario != -1) {
                 String sqlUpdateUser = "UPDATE usuarios SET email = ? WHERE id_usuario = ?";
                 try (PreparedStatement psUpdateUser = conn.prepareStatement(sqlUpdateUser)) {
@@ -145,12 +160,14 @@ public class AlumnoRepository {
         }
     }
 
+    // Elimina el alumno y su usuario asociado
     public boolean delete(String matricula) {
         Connection conn = null;
         try {
             conn = DatabaseConnection.getConnection();
             conn.setAutoCommit(false);
 
+            // Guarda el id_usuario antes de borrar al alumno
             int idUsuario = -1;
             String sqlIdUser = "SELECT id_usuario FROM alumnos WHERE matricula = ?";
             try (PreparedStatement psIdUser = conn.prepareStatement(sqlIdUser)) {
@@ -159,12 +176,14 @@ public class AlumnoRepository {
                 if (rsId.next()) idUsuario = rsId.getInt("id_usuario");
             }
 
+            // Borra al alumno primero para no violar la FK
             String sqlDelAl = "DELETE FROM alumnos WHERE matricula = ?";
             try (PreparedStatement psDelAl = conn.prepareStatement(sqlDelAl)) {
                 psDelAl.setString(1, matricula);
                 psDelAl.executeUpdate();
             }
 
+            // Luego borra el usuario
             if (idUsuario != -1) {
                 String sqlDelUs = "DELETE FROM usuarios WHERE id_usuario = ?";
                 try (PreparedStatement psDelUs = conn.prepareStatement(sqlDelUs)) {
@@ -185,6 +204,7 @@ public class AlumnoRepository {
         }
     }
 
+    // Retorna todos los grupos disponibles para llenar combos
     public List<String[]> getGruposDisponibles() throws SQLException {
         List<String[]> lista = new ArrayList<>();
         String sql = "SELECT DISTINCT semestre, nombre_grupo FROM grupos ORDER BY semestre, nombre_grupo";
@@ -203,6 +223,7 @@ public class AlumnoRepository {
         return lista;
     }
 
+    // Retorna las materias donde el profesor ya tiene calificaciones capturadas
     public List<String> getMateriasDelProfesor(int idProfesor) throws SQLException {
         List<String> lista = new ArrayList<>();
         String sql = "SELECT DISTINCT m.nombre_materia " +
@@ -222,6 +243,7 @@ public class AlumnoRepository {
         return lista;
     }
 
+    // Busca las calificaciones de un alumno en una materia y profesor específicos
     public Calificacion getCalificacionPorMateria(String matricula, String nombreMateria, int idProfesor) throws SQLException {
         String sql = "SELECT c.parcial_1, c.parcial_2, c.parcial_3, c.nota_final " +
                      "FROM calificaciones c " +
@@ -245,10 +267,12 @@ public class AlumnoRepository {
                 return new Calificacion(nombreMateria, parciales, notaFinal);
             }
         }
-        return null;
+        return null; // sin calificaciones registradas
     }
 
+    // Inserta o actualiza los parciales y nota final de un alumno en una materia
     public void guardarOActualizarNotas(String matricula, String nombreMateria, List<Double> parciales, double notaFinal, int idProfesor) throws SQLException {
+        // Busca el id numérico de la materia
         int idMateria = -1;
         String sqlMateria = "SELECT id_materia FROM materias WHERE nombre_materia = ?";
         
@@ -259,8 +283,9 @@ public class AlumnoRepository {
             if (rs.next()) idMateria = rs.getInt("id_materia");
         }
 
-        if (idMateria == -1) return;
+        if (idMateria == -1) return; // materia no encontrada, no hace nada
 
+        // Verifica si ya existe un registro para este alumno/materia/profesor
         String sqlCheck = "SELECT id_calificacion FROM calificaciones WHERE matricula_alumno = ? AND id_materia = ? AND id_profesor = ?";
         boolean existe = false;
         
@@ -273,6 +298,7 @@ public class AlumnoRepository {
             existe = rs.next();
         }
 
+        // Elige UPDATE o INSERT según si ya existía el registro
         String sqlQuery;
         if (existe) {
             sqlQuery = "UPDATE calificaciones SET parcial_1 = ?, parcial_2 = ?, parcial_3 = ?, nota_final = ? " +
@@ -293,9 +319,9 @@ public class AlumnoRepository {
             stmtFinal.setInt(7, idProfesor);
             stmtFinal.executeUpdate();
         }
-        
     }
 
+    // Retorna todas las calificaciones de un alumno con materia y nombre del profesor
     public List<Calificacion> getCalificacionesDelAlumno(String matricula) throws SQLException {
         List<Calificacion> lista = new ArrayList<>();
         

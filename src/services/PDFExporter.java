@@ -16,57 +16,79 @@ import com.itextpdf.layout.properties.UnitValue;
 import com.itextpdf.io.font.constants.StandardFonts;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.List;
-import models.Alumno; // IMPORTANTE: Ahora importamos Alumno
 
-public class PDFExporter {
+public class PDFExporter{
 
-    public static void exportAlumnos(List<Alumno> alumnos, String dest) throws IOException {
-        File file = new File(dest);
-        if (file.getParentFile() != null) {
-            file.getParentFile().mkdirs();
-        }
+    public static boolean crearReporteCalificaciones(String materia, String grupo, String semestre, String[] encabezados, List<String[]> datos) {
+        try {
+            String userHome = System.getProperty("user.home");
+            String nombreArchivo = "Calificaciones_" + materia.replaceAll(" ", "_") + "_" + grupo + ".pdf";
+            String dest = userHome + File.separator + "Documents" + File.separator + nombreArchivo;
 
-        PdfWriter writer = new PdfWriter(dest);
-        PdfDocument pdf = new PdfDocument(writer);
-        Document document = new Document(pdf, PageSize.A4);
+            File file = new File(dest);
+            if (file.getParentFile() != null) {
+                file.getParentFile().mkdirs();
+            }
 
-        float[] columnWidths = {1, 3, 4, 4, 2, 2};
-        Table table = new Table(UnitValue.createPercentArray(columnWidths)).useAllAvailableWidth();
+            PdfWriter writer = new PdfWriter(dest);
+            PdfDocument pdf = new PdfDocument(writer);
+            Document document = new Document(pdf, PageSize.A4);
 
-        PdfFont fontBold = PdfFontFactory.createFont(StandardFonts.HELVETICA_BOLD);
+            float[] columnWidths = {2, 5, 2, 2, 2, 2};
+            Table table = new Table(UnitValue.createPercentArray(columnWidths)).useAllAvailableWidth();
 
-        Cell mainHeader = new Cell(1, 6)
-                .add(new Paragraph("REPORTE GENERAL DE ALUMNOS"))
-                .setFont(fontBold)
-                .setFontSize(14)
-                .setFontColor(DeviceGray.WHITE)
-                .setBackgroundColor(new DeviceRgb(45, 111, 164))
-                .setTextAlignment(TextAlignment.CENTER)
-                .setPadding(8);
-        table.addHeaderCell(mainHeader);
+            PdfFont fontBold = PdfFontFactory.createFont(StandardFonts.HELVETICA_BOLD);
+            PdfFont fontNormal = PdfFontFactory.createFont(StandardFonts.HELVETICA);
 
-        String[] headers = {"#", "Matrícula", "Nombre", "Email", "Semestre", "Grupo"};
-        for (String h : headers) {
-            table.addHeaderCell(new Cell()
-                    .add(new Paragraph(h))
+            Cell mainHeader = new Cell(1, 6)
+                    .add(new Paragraph("REPORTE OFICIAL DE CALIFICACIONES"))
                     .setFont(fontBold)
-                    .setBackgroundColor(new DeviceGray(0.9f))
-                    .setTextAlignment(TextAlignment.CENTER));
-        }
+                    .setFontSize(14)
+                    .setFontColor(DeviceGray.WHITE)
+                    .setBackgroundColor(new DeviceRgb(45, 111, 164))
+                    .setTextAlignment(TextAlignment.CENTER)
+                    .setPadding(8);
+            table.addHeaderCell(mainHeader);
 
-        int i = 1;
-        for (Alumno a : alumnos) {
-            table.addCell(new Cell().add(new Paragraph(String.valueOf(i++))).setTextAlignment(TextAlignment.CENTER));
-            table.addCell(new Cell().add(new Paragraph(a.getMatricula())).setTextAlignment(TextAlignment.CENTER));
-            table.addCell(new Cell().add(new Paragraph(a.getNombre())));
-            table.addCell(new Cell().add(new Paragraph(a.getEmail())));
-            table.addCell(new Cell().add(new Paragraph(a.getSemestre())).setTextAlignment(TextAlignment.CENTER));
-            table.addCell(new Cell().add(new Paragraph(a.getGrupo())).setTextAlignment(TextAlignment.CENTER));
-        }
+            Cell subHeader = new Cell(1, 6)
+                    .add(new Paragraph("Materia: " + materia + "   |   Semestre: " + semestre + "   |   Grupo: " + grupo))
+                    .setFont(fontBold)
+                    .setFontSize(11)
+                    .setBackgroundColor(new DeviceGray(0.95f))
+                    .setTextAlignment(TextAlignment.CENTER)
+                    .setPadding(5);
+            table.addHeaderCell(subHeader);
 
-        document.add(table);
-        document.close();
+            for (String h : encabezados) {
+                table.addHeaderCell(new Cell()
+                        .add(new Paragraph(h))
+                        .setFont(fontBold)
+                        .setFontSize(10)
+                        .setBackgroundColor(new DeviceGray(0.9f))
+                        .setTextAlignment(TextAlignment.CENTER));
+            }
+
+            for (String[] fila : datos) {
+                for (int i = 0; i < fila.length; i++) {
+                    Cell celda = new Cell().add(new Paragraph(fila[i])).setFont(fontNormal).setFontSize(10);
+                    
+               
+                    if (i != 1) {
+                        celda.setTextAlignment(TextAlignment.CENTER);
+                    }
+                    table.addCell(celda);
+                }
+            }
+
+            document.add(table);
+            document.close();
+            
+            return true;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 }

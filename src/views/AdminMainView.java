@@ -2,13 +2,19 @@ package views;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.TitledBorder;
+import javax.swing.border.LineBorder;
 import java.awt.*;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
+import utils.AppStyles;
 
 public class AdminMainView extends JFrame {
     
     private JTabbedPane tabbedPane;
     
-    private JTextField txtMatricula, txtNombreAlum, txtEmailAlum, txtGrupo;
+    private JTextField txtMatricula, txtNombreAlum, txtApellidoAlum, txtEmailAlum, txtGrupo;
     private JComboBox<String> cbSemestre;
     private JButton btnGuardarAlum, btnEditarAlum, btnEliminarAlum; 
     private JTable tablaAlumnos;
@@ -27,147 +33,287 @@ public class AdminMainView extends JFrame {
 
     public AdminMainView() {
         setTitle("Panel Administrativo - Sistema Escolar");
-        setSize(950, 600);
+        setSize(1150, 700);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         
+        setLayout(new BorderLayout());
+        getContentPane().setBackground(AppStyles.BACKGROUND);
+        
+        JPanel mainContent = new JPanel(new BorderLayout());
+        mainContent.setBackground(AppStyles.BACKGROUND);
+        mainContent.setBorder(new EmptyBorder(10, 20, 20, 20));
+
         tabbedPane = new JTabbedPane();
+        tabbedPane.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        tabbedPane.setBackground(AppStyles.BACKGROUND);
+        
         tabbedPane.addTab("Gestión de Alumnos", crearPanelAlumnos());
         tabbedPane.addTab("Gestión de Profesores", crearPanelProfesores());
         tabbedPane.addTab("Asignar Materias", crearPanelInscripciones());
         
-        add(tabbedPane);
+        mainContent.add(tabbedPane, BorderLayout.CENTER);
+        add(mainContent, BorderLayout.CENTER);
     }
 
     private JPanel crearPanelAlumnos() {
-        JPanel panel = new JPanel(new BorderLayout(10, 10));
-        panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        JPanel panel = new JPanel(new BorderLayout(25, 0));
+        panel.setBackground(AppStyles.BACKGROUND);
+        panel.setBorder(new EmptyBorder(20, 0, 0, 0));
 
-        JPanel formPanel = new JPanel(new GridLayout(7, 2, 5, 15));
-        formPanel.setBorder(BorderFactory.createTitledBorder("Datos del Alumno"));
+        JPanel formCard = new JPanel(new BorderLayout(0, 20));
+        formCard.setBackground(Color.WHITE);
+        formCard.setBorder(BorderFactory.createCompoundBorder(
+            new LineBorder(new Color(230, 235, 240), 1, true),
+            new EmptyBorder(25, 25, 25, 25)
+        ));
+        formCard.setPreferredSize(new Dimension(380, 0));
+
+        JLabel lblTituloForm = new JLabel("Registro de Alumnos");
+        lblTituloForm.setFont(new Font("Segoe UI", Font.BOLD, 18));
+        lblTituloForm.setForeground(AppStyles.TEXT_DARK);
+        formCard.add(lblTituloForm, BorderLayout.NORTH);
+
+        JPanel formCampos = new JPanel(new GridLayout(6, 1, 0, 15));
+        formCampos.setBackground(Color.WHITE);
         
-        formPanel.add(new JLabel("Matrícula:"));
-        txtMatricula = new JTextField();
-        formPanel.add(txtMatricula);
+        txtMatricula = new JTextField(); AppStyles.estilizarCampo(txtMatricula); agregarEfectoFoco(txtMatricula);
+        formCampos.add(crearBloqueCampo("Matrícula", txtMatricula));
         
-        formPanel.add(new JLabel("Nombre:"));
-        txtNombreAlum = new JTextField();
-        formPanel.add(txtNombreAlum);
+        JPanel rowNombreApe = new JPanel(new GridLayout(1, 2, 15, 0));
+        rowNombreApe.setBackground(Color.WHITE);
+        txtNombreAlum = new JTextField(); AppStyles.estilizarCampo(txtNombreAlum); agregarEfectoFoco(txtNombreAlum);
+        txtApellidoAlum = new JTextField(); AppStyles.estilizarCampo(txtApellidoAlum); agregarEfectoFoco(txtApellidoAlum);
+        rowNombreApe.add(crearBloqueCampo("Nombre", txtNombreAlum));
+        rowNombreApe.add(crearBloqueCampo("Apellido", txtApellidoAlum));
+        formCampos.add(rowNombreApe);
+
+        txtEmailAlum = new JTextField(); AppStyles.estilizarCampo(txtEmailAlum); agregarEfectoFoco(txtEmailAlum);
+        formCampos.add(crearBloqueCampo("Email Institucional", txtEmailAlum));
         
-        formPanel.add(new JLabel("Correo Institucional:"));
-        txtEmailAlum = new JTextField();
-        formPanel.add(txtEmailAlum);
-        
-        formPanel.add(new JLabel("Semestre:"));
+        JPanel rowSemGru = new JPanel(new GridLayout(1, 2, 15, 0));
+        rowSemGru.setBackground(Color.WHITE);
         cbSemestre = new JComboBox<>(new String[]{"Primero", "Segundo", "Tercero", "Cuarto", "Quinto", "Sexto", "Séptimo", "Octavo"});
-        formPanel.add(cbSemestre);
-        
-        formPanel.add(new JLabel("Grupo (Ej: A, B):"));
-        txtGrupo = new JTextField();
-        formPanel.add(txtGrupo);
-        
-        btnGuardarAlum = new JButton("Guardar Alumno");
-        formPanel.add(new JLabel("")); 
-        formPanel.add(btnGuardarAlum);
+        cbSemestre.setFont(AppStyles.FUENTE_TEXTO); cbSemestre.setBackground(Color.WHITE);
+        txtGrupo = new JTextField(); AppStyles.estilizarCampo(txtGrupo); agregarEfectoFoco(txtGrupo);
+        rowSemGru.add(crearBloqueCampo("Semestre", cbSemestre));
+        rowSemGru.add(crearBloqueCampo("Grupo", txtGrupo));
+        formCampos.add(rowSemGru);
 
-        btnEditarAlum = new JButton("Editar Seleccionado");
-        btnEliminarAlum = new JButton("Eliminar Seleccionado");
-        formPanel.add(btnEditarAlum);
-        formPanel.add(btnEliminarAlum);
+        formCard.add(formCampos, BorderLayout.CENTER);
 
-        String[] columnas = {"Matrícula", "Nombre", "Email", "Semestre", "Grupo"};
+        JPanel actionContainer = new JPanel(new BorderLayout(0, 15));
+        actionContainer.setBackground(Color.WHITE);
+
+        btnGuardarAlum = new JButton("Guardar Alumno"); AppStyles.estilizarBoton(btnGuardarAlum);
+        btnGuardarAlum.setPreferredSize(new Dimension(0, 45));
+        actionContainer.add(btnGuardarAlum, BorderLayout.NORTH);
+
+        JPanel gridBotonesSecundarios = new JPanel(new GridLayout(1, 2, 15, 0));
+        gridBotonesSecundarios.setBackground(Color.WHITE);
+        btnEditarAlum = new JButton("Editar"); estilizarBotonSecundario(btnEditarAlum);
+        btnEliminarAlum = new JButton("Eliminar"); estilizarBotonSecundario(btnEliminarAlum);
+        gridBotonesSecundarios.add(btnEditarAlum);
+        gridBotonesSecundarios.add(btnEliminarAlum);
+        actionContainer.add(gridBotonesSecundarios, BorderLayout.SOUTH);
+
+        formCard.add(actionContainer, BorderLayout.SOUTH);
+
+        JPanel tableCard = new JPanel(new BorderLayout(0, 15));
+        tableCard.setBackground(Color.WHITE);
+        tableCard.setBorder(BorderFactory.createCompoundBorder(
+            new LineBorder(new Color(230, 235, 240), 1, true),
+            new EmptyBorder(25, 25, 25, 25)
+        ));
+
+        JLabel lblTituloTabla = new JLabel("Lista de Alumnos");
+        lblTituloTabla.setFont(new Font("Segoe UI", Font.BOLD, 18));
+        lblTituloTabla.setForeground(AppStyles.TEXT_DARK);
+        tableCard.add(lblTituloTabla, BorderLayout.NORTH);
+
+        String[] columnas = {"Matrícula", "Nombre", "Apellido", "Email", "Sem", "Grupo"};
         modeloAlumnos = new DefaultTableModel(columnas, 0);
         tablaAlumnos = new JTable(modeloAlumnos);
+        AppStyles.estilizarTabla(tablaAlumnos);
         JScrollPane scrollPane = new JScrollPane(tablaAlumnos);
+        scrollPane.setBorder(BorderFactory.createEmptyBorder());
+        scrollPane.getViewport().setBackground(Color.WHITE);
+        tableCard.add(scrollPane, BorderLayout.CENTER);
         
-        panel.add(formPanel, BorderLayout.WEST);
-        panel.add(scrollPane, BorderLayout.CENTER);
+        panel.add(formCard, BorderLayout.WEST);
+        panel.add(tableCard, BorderLayout.CENTER);
         
         return panel;
     }
 
     private JPanel crearPanelProfesores() {
-        JPanel panel = new JPanel(new BorderLayout(10, 10));
-        panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        JPanel panel = new JPanel(new BorderLayout(25, 0));
+        panel.setBackground(AppStyles.BACKGROUND);
+        panel.setBorder(new EmptyBorder(20, 0, 0, 0));
 
-        JPanel formPanel = new JPanel(new GridLayout(7, 2, 5, 15)); 
-        formPanel.setBorder(BorderFactory.createTitledBorder("Datos del Profesor"));
-        
-        formPanel.add(new JLabel("Nombre:"));
-        txtNombreProf = new JTextField();
-        formPanel.add(txtNombreProf);
-        
-        formPanel.add(new JLabel("Apellido:"));
-        txtApellidoProf = new JTextField();
-        formPanel.add(txtApellidoProf);
-        
-        formPanel.add(new JLabel("Correo Institucional:"));
-        txtEmailProf = new JTextField();
-        formPanel.add(txtEmailProf);
-        
-        formPanel.add(new JLabel("Contraseña Inicial:"));
-        txtPassProf = new JPasswordField();
-        formPanel.add(txtPassProf);
-        
-        btnGuardarProf = new JButton("Guardar Profesor");
-        formPanel.add(new JLabel("")); 
-        formPanel.add(btnGuardarProf);
+        JPanel formCard = new JPanel(new BorderLayout(0, 20));
+        formCard.setBackground(Color.WHITE);
+        formCard.setBorder(BorderFactory.createCompoundBorder(
+            new LineBorder(new Color(230, 235, 240), 1, true),
+            new EmptyBorder(25, 25, 25, 25)
+        ));
+        formCard.setPreferredSize(new Dimension(380, 0));
 
-        btnEditarProf = new JButton("Editar Seleccionado");
-        btnEliminarProf = new JButton("Eliminar Seleccionado");
-        formPanel.add(btnEditarProf);
-        formPanel.add(btnEliminarProf);
+        JLabel lblTituloForm = new JLabel("Registro de Profesores");
+        lblTituloForm.setFont(new Font("Segoe UI", Font.BOLD, 18));
+        lblTituloForm.setForeground(AppStyles.TEXT_DARK);
+        formCard.add(lblTituloForm, BorderLayout.NORTH);
+
+        JPanel formCampos = new JPanel(new GridLayout(4, 1, 0, 15));
+        formCampos.setBackground(Color.WHITE);
+        
+        JPanel rowNombreApe = new JPanel(new GridLayout(1, 2, 15, 0));
+        rowNombreApe.setBackground(Color.WHITE);
+        txtNombreProf = new JTextField(); AppStyles.estilizarCampo(txtNombreProf); agregarEfectoFoco(txtNombreProf);
+        txtApellidoProf = new JTextField(); AppStyles.estilizarCampo(txtApellidoProf); agregarEfectoFoco(txtApellidoProf);
+        rowNombreApe.add(crearBloqueCampo("Nombre", txtNombreProf));
+        rowNombreApe.add(crearBloqueCampo("Apellido", txtApellidoProf));
+        formCampos.add(rowNombreApe);
+
+        txtEmailProf = new JTextField(); AppStyles.estilizarCampo(txtEmailProf); agregarEfectoFoco(txtEmailProf);
+        formCampos.add(crearBloqueCampo("Correo Institucional", txtEmailProf));
+        
+        txtPassProf = new JPasswordField(); AppStyles.estilizarCampo(txtPassProf); agregarEfectoFoco(txtPassProf);
+        formCampos.add(crearBloqueCampo("Contraseña Inicial", txtPassProf));
+
+        formCard.add(formCampos, BorderLayout.CENTER);
+
+        JPanel actionContainer = new JPanel(new BorderLayout(0, 15));
+        actionContainer.setBackground(Color.WHITE);
+
+        btnGuardarProf = new JButton("Guardar Profesor"); AppStyles.estilizarBoton(btnGuardarProf);
+        btnGuardarProf.setPreferredSize(new Dimension(0, 45));
+        actionContainer.add(btnGuardarProf, BorderLayout.NORTH);
+
+        JPanel gridBotonesSecundarios = new JPanel(new GridLayout(1, 2, 15, 0));
+        gridBotonesSecundarios.setBackground(Color.WHITE);
+        btnEditarProf = new JButton("Editar"); estilizarBotonSecundario(btnEditarProf);
+        btnEliminarProf = new JButton("Eliminar"); estilizarBotonSecundario(btnEliminarProf);
+        gridBotonesSecundarios.add(btnEditarProf);
+        gridBotonesSecundarios.add(btnEliminarProf);
+        actionContainer.add(gridBotonesSecundarios, BorderLayout.SOUTH);
+
+        formCard.add(actionContainer, BorderLayout.SOUTH);
+
+        JPanel tableCard = new JPanel(new BorderLayout(0, 15));
+        tableCard.setBackground(Color.WHITE);
+        tableCard.setBorder(BorderFactory.createCompoundBorder(
+            new LineBorder(new Color(230, 235, 240), 1, true),
+            new EmptyBorder(25, 25, 25, 25)
+        ));
+
+        JLabel lblTituloTabla = new JLabel("Lista de Profesores");
+        lblTituloTabla.setFont(new Font("Segoe UI", Font.BOLD, 18));
+        lblTituloTabla.setForeground(AppStyles.TEXT_DARK);
+        tableCard.add(lblTituloTabla, BorderLayout.NORTH);
 
         String[] columnas = {"ID", "Nombre", "Apellido", "Email"};
         modeloProfesores = new DefaultTableModel(columnas, 0);
         tablaProfesores = new JTable(modeloProfesores);
+        AppStyles.estilizarTabla(tablaProfesores);
         JScrollPane scrollPane = new JScrollPane(tablaProfesores);
+        scrollPane.setBorder(BorderFactory.createEmptyBorder());
+        scrollPane.getViewport().setBackground(Color.WHITE);
+        tableCard.add(scrollPane, BorderLayout.CENTER);
         
-        panel.add(formPanel, BorderLayout.WEST);
-        panel.add(scrollPane, BorderLayout.CENTER);
+        panel.add(formCard, BorderLayout.WEST);
+        panel.add(tableCard, BorderLayout.CENTER);
         
         return panel;
     }
 
     private JPanel crearPanelInscripciones() {
         JPanel panel = new JPanel(new GridBagLayout());
-        panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.insets = new Insets(10, 10, 10, 10);
+        panel.setBackground(AppStyles.BACKGROUND);
+        
+        JPanel formCard = new JPanel(new BorderLayout(0, 25));
+        formCard.setBackground(Color.WHITE);
+        formCard.setBorder(BorderFactory.createCompoundBorder(
+            new LineBorder(new Color(230, 235, 240), 1, true),
+            new EmptyBorder(35, 40, 35, 40)
+        ));
+        formCard.setPreferredSize(new Dimension(600, 380));
 
-        JPanel formPanel = new JPanel(new GridLayout(4, 2, 10, 20));
-        formPanel.setBorder(BorderFactory.createTitledBorder("Inscribir Alumno a Materia"));
-        formPanel.setPreferredSize(new Dimension(500, 250));
+        JLabel lblTitulo = new JLabel("Inscribir Alumno a Materia", SwingConstants.CENTER);
+        lblTitulo.setFont(new Font("Segoe UI", Font.BOLD, 20));
+        lblTitulo.setForeground(AppStyles.TEXT_DARK);
+        formCard.add(lblTitulo, BorderLayout.NORTH);
 
-        formPanel.add(new JLabel("Seleccione Alumno:"));
-        cbAlumnosInsc = new JComboBox<>();
-        formPanel.add(cbAlumnosInsc);
+        JPanel formCampos = new JPanel(new GridLayout(3, 1, 0, 15));
+        formCampos.setBackground(Color.WHITE);
 
-        formPanel.add(new JLabel("Seleccione Materia:"));
-        cbMateriasInsc = new JComboBox<>();
-        formPanel.add(cbMateriasInsc);
+        cbAlumnosInsc = new JComboBox<>(); cbAlumnosInsc.setFont(AppStyles.FUENTE_TEXTO); cbAlumnosInsc.setBackground(Color.WHITE);
+        formCampos.add(crearBloqueCampo("Seleccione Alumno", cbAlumnosInsc));
 
-        formPanel.add(new JLabel("Asignar Profesor:"));
-        cbProfesoresInsc = new JComboBox<>();
-        formPanel.add(cbProfesoresInsc);
+        cbMateriasInsc = new JComboBox<>(); cbMateriasInsc.setFont(AppStyles.FUENTE_TEXTO); cbMateriasInsc.setBackground(Color.WHITE);
+        formCampos.add(crearBloqueCampo("Seleccione Materia", cbMateriasInsc));
 
-        formPanel.add(new JLabel(""));
-        btnInscribir = new JButton("Registrar Inscripción");
-        btnInscribir.setBackground(new Color(45, 111, 164));
-        btnInscribir.setForeground(Color.WHITE);
-        formPanel.add(btnInscribir);
+        cbProfesoresInsc = new JComboBox<>(); cbProfesoresInsc.setFont(AppStyles.FUENTE_TEXTO); cbProfesoresInsc.setBackground(Color.WHITE);
+        formCampos.add(crearBloqueCampo("Asignar Profesor", cbProfesoresInsc));
 
-        gbc.gridx = 0; gbc.gridy = 0;
-        panel.add(formPanel, gbc);
+        formCard.add(formCampos, BorderLayout.CENTER);
 
+        btnInscribir = new JButton("Registrar Inscripción"); AppStyles.estilizarBoton(btnInscribir);
+        btnInscribir.setPreferredSize(new Dimension(0, 45));
+        formCard.add(btnInscribir, BorderLayout.SOUTH);
+
+        panel.add(formCard);
         return panel;
+    }
+
+    private JPanel crearBloqueCampo(String titulo, JComponent componente) {
+        JPanel p = new JPanel(new BorderLayout(0, 5));
+        p.setBackground(Color.WHITE);
+        JLabel lbl = new JLabel(titulo);
+        lbl.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        lbl.setForeground(new Color(100, 110, 120));
+        p.add(lbl, BorderLayout.NORTH);
+        p.add(componente, BorderLayout.CENTER);
+        return p;
+    }
+
+    private void estilizarBotonSecundario(JButton boton) {
+        boton.setFont(AppStyles.FUENTE_TEXTO);
+        boton.setBackground(Color.WHITE);
+        boton.setForeground(Color.DARK_GRAY);
+        boton.setFocusPainted(false);
+        boton.setContentAreaFilled(true);
+        boton.setBorder(BorderFactory.createCompoundBorder(
+            new LineBorder(new Color(200, 210, 220), 1),
+            new EmptyBorder(8, 15, 8, 15)
+        ));
+        boton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+    }
+
+    private void agregarEfectoFoco(JTextField campo) {
+        campo.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusGained(FocusEvent e) {
+                campo.setBorder(BorderFactory.createCompoundBorder(
+                    new LineBorder(AppStyles.PRIMARY, 1, true),
+                    new EmptyBorder(8, 10, 8, 10)
+                ));
+            }
+            @Override
+            public void focusLost(FocusEvent e) {
+                campo.setBorder(BorderFactory.createCompoundBorder(
+                    new LineBorder(new Color(210, 220, 230), 1),
+                    new EmptyBorder(8, 10, 8, 10)
+                ));
+            }
+        });
     }
 
     public JTabbedPane getTabbedPane() { return tabbedPane; }
     
     public JTextField getTxtMatricula() { return txtMatricula; }
     public JTextField getTxtNombreAlum() { return txtNombreAlum; }
+    public JTextField getTxtApellidoAlum() { return txtApellidoAlum; }
     public JTextField getTxtEmailAlum() { return txtEmailAlum; }
     public JTextField getTxtGrupo() { return txtGrupo; }
     public JComboBox<String> getCbSemestre() { return cbSemestre; }
@@ -182,6 +328,7 @@ public class AdminMainView extends JFrame {
     public void limpiarCamposAlumno() {
         txtMatricula.setText("");
         txtNombreAlum.setText("");
+        txtApellidoAlum.setText("");
         txtEmailAlum.setText("");
         txtGrupo.setText("");
         cbSemestre.setSelectedIndex(0);

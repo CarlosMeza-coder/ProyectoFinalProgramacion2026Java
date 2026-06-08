@@ -28,10 +28,20 @@ public class DatabaseConnection {
                 String password = props.getProperty("db.password");
                 String driver = props.getProperty("db.driver");
                 
+                // ====================================================================
+                // 🔥 TRUCO MAESTRO: FORZAMOS LA URL REAL EN EL CÓDIGO 🔥
+                // Esto ignora el archivo properties corrupto en la caché de Eclipse
+                url = "jdbc:mysql://localhost:3306/proyecto_escolar_definitiva?useSSL=false&serverTimezone=UTC";
+                // ====================================================================
+                
                 Class.forName(driver);
                 
                 connection = DriverManager.getConnection(url, user, password);
+                
+                // === LÍNEAS DE RASTREO PARA TU CONSOLA ===
                 System.out.println(">>> ¡Conexión establecida con éxito! <<<");
+                System.out.println("URL REAL MANDATORIA FORZADA: " + url);
+                // =========================================
             }
             
         } catch(Exception e) {

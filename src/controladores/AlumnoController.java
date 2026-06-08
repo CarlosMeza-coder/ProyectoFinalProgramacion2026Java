@@ -12,19 +12,22 @@ public class AlumnoController {
     private final AlumnoMainView vista;
     private final AlumnoRepository repo;
 
+    // prepara la vista del alumno y carga sus datos al abrir
     public AlumnoController(AlumnoMainView vista) {
         this.vista = vista;
         this.repo  = new AlumnoRepository();
-
-        cargarCalificaciones();
+        cargarCalificaciones(); // Llena la tabla antes de mostrar la ventana
         initListeners();
-
         this.vista.setVisible(true);
     }
 
+    // Consulta las calificaciones del alumno en sesión y las muestra en la tabla
     private void cargarCalificaciones() {
+
+        // Obtiene la matrícula del alumno que inició sesión
         String matricula = Session.getMatriculaAlumno();
 
+        // Si no hay sesión activa, no hay nada que mostrar
         if (matricula == null || matricula.isEmpty()) {
             JOptionPane.showMessageDialog(vista,
                 "No hay sesión activa.", "Error", JOptionPane.ERROR_MESSAGE);
@@ -32,10 +35,12 @@ public class AlumnoController {
         }
 
         try {
+            // Pide al repositorio las calificaciones de esa matrícula
             List<Calificacion> misNotas = repo.getCalificacionesDelAlumno(matricula);
 
-            vista.getModeloCalificaciones().setRowCount(0);
+            vista.getModeloCalificaciones().setRowCount(0); // Limpia la tabla antes de llenarla
 
+            // Si la lista viene vacía, avisa al alumno y termina
             if (misNotas.isEmpty()) {
                 JOptionPane.showMessageDialog(vista,
                     "Aún no tienes calificaciones registradas.",
@@ -43,7 +48,9 @@ public class AlumnoController {
                 return;
             }
 
+            // Recorre cada calificación y agrega una fila a la tabla
             for (Calificacion c : misNotas) {
+                // Si un parcial o la nota final es 0.0, muestra "-" en lugar del número
                 Object p1 = c.getParciales().get(0) == 0.0 ? "-" : c.getParciales().get(0);
                 Object p2 = c.getParciales().get(1) == 0.0 ? "-" : c.getParciales().get(1);
                 Object p3 = c.getParciales().get(2) == 0.0 ? "-" : c.getParciales().get(2);
@@ -64,11 +71,12 @@ public class AlumnoController {
         }
     }
 
+    // Registra el único botón de esta vista: cerrar sesión
     private void initListeners() {
         vista.getBtnLogout().addActionListener(e -> {
-            Session.logout();
-            vista.dispose();
-            new views.LoginWindow().setVisible(true);
+            Session.logout();       // Borra los datos de la sesión actual
+            vista.dispose();        // Cierra la ventana del alumno
+            new views.LoginWindow().setVisible(true); // Regresa al login
         });
     }
 }

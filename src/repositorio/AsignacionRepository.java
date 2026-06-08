@@ -7,6 +7,7 @@ import config.DatabaseConnection;
 
 public class AsignacionRepository {
 
+    // Retorna los nombres de todas las materias disponibles
     public List<String> getListaMaterias() {
         List<String> materias = new ArrayList<>();
         String sql = "SELECT nombre_materia FROM materias";
@@ -18,6 +19,7 @@ public class AsignacionRepository {
         return materias;
     }
 
+    // Retorna los profesores formateados como "id - Nombre Apellido"
     public List<String> getListaProfesores() {
         List<String> profes = new ArrayList<>();
         String sql = "SELECT p.id_profesor, p.nombre, p.apellido FROM profesores p";
@@ -26,14 +28,17 @@ public class AsignacionRepository {
              Statement st = conn.createStatement();
              ResultSet rs = st.executeQuery(sql)) {
             while (rs.next()) {
+                // Concatena id y nombre para identificar al profesor en la UI
                 profes.add(rs.getInt("id_profesor") + " - " + rs.getString("nombre") + " " + rs.getString("apellido"));
             }
         } catch (SQLException ex) { ex.printStackTrace(); }
         return profes;
     }
-
     
+    // Inscribe un alumno a una materia creando un registro de calificaciones en ceros
     public void inscribirAlumnoAMateria(String matricula, int idProfesor, String nombreMateria) throws SQLException {
+    	
+        // Busca el id numérico de la materia por su nombre
         int idMateria = -1;
         String sqlMat = "SELECT id_materia FROM materias WHERE nombre_materia = ?";
         try (Connection conn = DatabaseConnection.getConnection();
@@ -43,6 +48,7 @@ public class AsignacionRepository {
             if (rs.next()) idMateria = rs.getInt("id_materia");
         }
 
+        // Inserta el registro con parciales y nota final en 0.0
         String sqlInsert = "INSERT INTO calificaciones (parcial_1, parcial_2, parcial_3, nota_final, matricula_alumno, id_materia, id_profesor) " +
                            "VALUES (0.0, 0.0, 0.0, 0.0, ?, ?, ?)";
         
